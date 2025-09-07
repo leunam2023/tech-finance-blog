@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AdSenseScript from "@/components/AdSenseScript";
 import { generateHomeMetadata } from "@/lib/seo";
 import Script from 'next/script';
 
@@ -36,21 +37,12 @@ export default function RootLayout({
         <meta name="google-adsense-account" content="ca-pub-4107404773575160" />
       </head>
       <body className="antialiased bg-gray-50 min-h-screen flex flex-col">
+        <AdSenseScript />
         <Header />
         <main className="flex-1">
           {children}
         </main>
         <Footer />
-
-        {/* Google AdSense - Solo cargar si hay ID configurado */}
-        {(adsenseId && adsenseId !== 'ca-pub-xxxxxxxxxxxxxxxx') || process.env.NODE_ENV === 'production' ? (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId || 'ca-pub-4107404773575160'}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        ) : null}
 
         {/* Google Analytics - Solo cargar si hay ID configurado */}
         {gaId && gaId !== 'G-XXXXXXXXXX' && (
