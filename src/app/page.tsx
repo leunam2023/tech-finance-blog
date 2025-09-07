@@ -2,6 +2,7 @@ import BlogCard from '@/components/BlogCard';
 import { NativeAd } from '@/components/AdBanner';
 import { BannerAd } from '@/components/AdSense';
 import { AffiliateBanner, AffiliateSidebar } from '@/components/AffiliateCard';
+import StarkTechnologiaBanner, { StarkTechnologiaSidebar } from '@/components/StarkTechnologiaBanner';
 import NewsletterForm from '@/components/NewsletterForm';
 import { getMixedNews } from '@/lib/newsApi';
 import { TrendingUp, Smartphone, DollarSign, Clock } from 'lucide-react';
@@ -72,6 +73,11 @@ export default async function HomePage() {
                 <BlogCard post={featuredPost} featured={true} />
               </section>
             )}
+
+            {/* Banner de Stark Tecnología - Oportunidad de Inversión */}
+            <section className="mb-12">
+              <StarkTechnologiaBanner />
+            </section>
 
             {/* Banner de afiliado */}
             <AffiliateBanner />
@@ -156,6 +162,9 @@ export default async function HomePage() {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-20 space-y-8">
+              {/* Stark Tecnología - Oportunidad de Inversión */}
+              <StarkTechnologiaSidebar />
+
               {/* Sidebar de afiliados */}
               <AffiliateSidebar />
 

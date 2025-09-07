@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, Menu, X, TrendingUp, Smartphone, DollarSign } from 'lucide-react';
+import { Search, Menu, X, TrendingUp, Smartphone, DollarSign, Zap } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSearchSuggestions } from '@/lib/search';
@@ -19,6 +19,7 @@ const Header = () => {
         { name: 'Inicio', href: '/', icon: null },
         { name: 'Tecnología', href: '/blog/technology', icon: Smartphone },
         { name: 'Finanzas', href: '/blog/finance', icon: DollarSign },
+        { name: 'Criptomonedas', href: '/criptomonedas', icon: Zap },
         { name: 'Tendencias', href: '/blog/trending', icon: TrendingUp },
     ];
 
