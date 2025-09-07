@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newsletter Management Test</title>
+    <title>Newsletter Management Test v2.0</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
@@ -17,7 +17,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Newsletter Management Test</h1>
+        <h1>🚀 Newsletter Management Test v2.0</h1>
         
         <div>
             <h3>Suscribir Email</h3>
@@ -41,9 +41,16 @@
     <script>
         // Detectar automáticamente la URL base
         const getApiUrl = () => {
+            console.log('🔍 Debug Info:');
+            console.log('  - hostname:', window.location.hostname);
+            console.log('  - origin:', window.location.origin);
+            console.log('  - full URL:', window.location.href);
+            
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('🏠 Detected: Development environment');
                 return 'http://localhost:3000/api/newsletter';
             } else {
+                console.log('🌍 Detected: Production environment');
                 return `${window.location.origin}/api/newsletter`;
             }
         };
@@ -52,8 +59,23 @@
         const outputDiv = document.getElementById('output');
 
         // Log inicial para mostrar la URL que se está usando
-        console.log('🔗 API URL:', apiUrl);
+        console.log('🔗 Final API URL:', apiUrl);
         console.log('🌍 Environment:', window.location.hostname === 'localhost' ? 'Development' : 'Production');
+        
+        // Mostrar en la página también para debug
+        const debugInfo = document.createElement('div');
+        debugInfo.style.background = '#f0f0f0';
+        debugInfo.style.padding = '10px';
+        debugInfo.style.marginBottom = '20px';
+        debugInfo.style.fontSize = '12px';
+        debugInfo.innerHTML = `
+            <strong>🔧 Debug Info:</strong><br>
+            Environment: ${window.location.hostname === 'localhost' ? 'Development' : 'Production'}<br>
+            API URL: ${apiUrl}<br>
+            Hostname: ${window.location.hostname}<br>
+            Origin: ${window.location.origin}
+        `;
+        document.querySelector('.container').insertBefore(debugInfo, document.querySelector('.container').firstChild);
 
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
