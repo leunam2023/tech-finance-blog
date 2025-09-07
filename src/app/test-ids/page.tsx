@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getMixedNews, getArticleById } from '@/lib/newsApi';
 
 export default async function TestIdsPage() {
@@ -46,8 +47,8 @@ export default async function TestIdsPage() {
                     <div
                         key={index}
                         className={`p-4 rounded-lg border-2 ${result.found
-                                ? 'bg-green-50 border-green-200'
-                                : 'bg-red-50 border-red-200'
+                            ? 'bg-green-50 border-green-200'
+                            : 'bg-red-50 border-red-200'
                             }`}
                     >
                         <div className="flex items-center justify-between">
@@ -90,8 +91,8 @@ export default async function TestIdsPage() {
                                 <a
                                     href={`/blog/${result.originalId}`}
                                     className={`px-4 py-2 rounded-lg text-white font-medium ${result.found
-                                            ? 'bg-green-600 hover:bg-green-700'
-                                            : 'bg-red-600 hover:bg-red-700'
+                                        ? 'bg-green-600 hover:bg-green-700'
+                                        : 'bg-red-600 hover:bg-red-700'
                                         }`}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -122,18 +123,18 @@ export default async function TestIdsPage() {
             </div>
 
             <div className="mt-6 text-center">
-                <a
+                <Link
                     href="/debug"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium mr-4"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium mr-4 inline-block"
                 >
                     Ver página de debug completa
-                </a>
-                <a
+                </Link>
+                <Link
                     href="/"
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium inline-block"
                 >
                     Volver al inicio
-                </a>
+                </Link>
             </div>
         </div>
     );
