@@ -359,6 +359,128 @@ function calculateReadTime(content: string): number {
   return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
 }
 
+// Función para expandir el contenido de un artículo con más detalles
+function expandArticleContent(article: NewsArticle): string {
+  let content = article.content || article.description || '';
+  
+  // Si el contenido es muy corto, expandirlo con información adicional
+  if (content.length < 500) {
+    const expandedContent = [
+      content,
+      '',
+      '## Detalles adicionales',
+      '',
+      'Este artículo ha sido obtenido de fuentes confiables de noticias especializadas en tecnología y finanzas.',
+      '',
+      '### Puntos clave:',
+      ''
+    ];
+
+    // Extraer puntos clave del título y descripción
+    const keyPoints = extractKeyPoints(article.title, article.description);
+    keyPoints.forEach((point, index) => {
+      expandedContent.push(`${index + 1}. ${point}`);
+    });
+
+    expandedContent.push('');
+    expandedContent.push('### Contexto del mercado');
+    expandedContent.push('');
+    expandedContent.push('En el contexto actual del mercado tecnológico y financiero, esta noticia representa una oportunidad importante para entender las tendencias que están moldeando nuestro futuro digital.');
+    
+    content = expandedContent.join('\n');
+  }
+
+  return content;
+}
+
+// Función para extraer puntos clave del título y descripción
+function extractKeyPoints(title: string, description: string): string[] {
+  const text = `${title} ${description}`.toLowerCase();
+  const keyPoints: string[] = [];
+
+  // Patrones para identificar información importante
+  const patterns = [
+    { regex: /(\d+%|\d+\.\d+%)/g, prefix: 'Cambio porcentual del' },
+    { regex: /(\$\d+[\d,]*(?:\.\d+)?(?:\s*(?:millones?|miles?|billones?))?)/g, prefix: 'Valor monetario de' },
+    { regex: /(lanza|presenta|anuncia|revela)/gi, prefix: 'Nuevo anuncio sobre' },
+    { regex: /(subir?|bajar?|aumentar?|disminuir?)/gi, prefix: 'Tendencia del mercado:' },
+    { regex: /(bitcoin|crypto|blockchain|inteligencia artificial|ai|tecnología)/gi, prefix: 'Sector relevante:' }
+  ];
+
+  patterns.forEach(pattern => {
+    const matches = text.match(pattern.regex);
+    if (matches && matches.length > 0) {
+      matches.slice(0, 2).forEach(match => {
+        keyPoints.push(`${pattern.prefix} ${match}`);
+      });
+    }
+  });
+
+  // Si no encontramos puntos específicos, crear algunos genéricos
+  if (keyPoints.length === 0) {
+    keyPoints.push('Desarrollo relevante en el sector tecnológico o financiero');
+    keyPoints.push('Impacto potencial en los mercados y usuarios');
+    keyPoints.push('Información actualizada de fuentes confiables');
+  }
+
+  return keyPoints.slice(0, 4); // Máximo 4 puntos clave
+}
+
+// Función para obtener un artículo específico por ID con contenido expandido
+export async function getArticleById(id: string): Promise<BlogPost | null> {
+  try {
+    // Primero intentamos encontrarlo en las noticias mezcladas
+    const allPosts = await getMixedNews(100); // Obtenemos más posts para mejor probabilidad
+    const post = allPosts.find(p => p.id === id);
+    
+    if (post) {
+      // Expandir el contenido si es necesario
+      if (post.content.length < 500) {
+        // Buscar el artículo original en las fuentes de NewsAPI para expandir
+        const [techNews, financeNews, businessNews, trendingNews] = await Promise.all([
+          getTechnologyNews(1, 50),
+          getFinanceNews(1, 50),
+          getBusinessNews(1, 50),
+          getTrendingNews(1, 50)
+        ]);
+
+        const allArticles = [
+          ...techNews.articles,
+          ...financeNews.articles,
+          ...businessNews.articles,
+          ...trendingNews.articles
+        ];
+
+        const originalArticle = allArticles.find(article => generateId(article.url) === id);
+        if (originalArticle) {
+          post.content = expandArticleContent(originalArticle);
+          post.readTime = calculateReadTime(post.content);
+        }
+      }
+      
+      return post;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error fetching article by ID:', error);
+    return null;
+  }
+}
+
+// Función para obtener artículos relacionados por categoría
+export async function getRelatedArticles(postId: string, category: string, limit: number = 4): Promise<BlogPost[]> {
+  try {
+    const allPosts = await getMixedNews(50);
+    return allPosts
+      .filter(post => post.id !== postId && post.category === category)
+      .slice(0, limit);
+  } catch (error) {
+    console.error('Error fetching related articles:', error);
+    return [];
+  }
+}
+
 // Función para convertir un artículo de NewsAPI a nuestro formato BlogPost
 export function convertNewsArticleToBlogPost(article: NewsArticle, category: 'technology' | 'finance' | 'general'): BlogPost {
   return {

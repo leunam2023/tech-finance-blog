@@ -4,11 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, User, ExternalLink, ArrowLeft, Tag } from 'lucide-react';
+import { Calendar, Clock, User, ExternalLink, Tag, Share2, Bookmark } from 'lucide-react';
 
 import { HorizontalAd, NativeAd, SidebarAd } from '@/components/AdBanner';
 import { AffiliateSidebar } from '@/components/AffiliateCard';
-import { getMixedNews } from '@/lib/newsApi';
+import BlogCard from '@/components/BlogCard';
+import { getArticleById, getRelatedArticles } from '@/lib/newsApi';
 import { generateBlogPostMetadata, generateArticleStructuredData } from '@/lib/seo';
 
 interface BlogPostPageProps {
@@ -17,10 +18,9 @@ interface BlogPostPageProps {
     }>;
 }
 
-// Esta función busca el post por ID en nuestras fuentes de datos
+// Esta función busca el post por ID usando la nueva función optimizada
 async function getPostById(id: string) {
-    const posts = await getMixedNews(50); // Obtenemos más posts para tener más probabilidad de encontrar el ID
-    return posts.find(post => post.id === id);
+    return await getArticleById(id);
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
@@ -50,6 +50,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     if (!post) {
         notFound();
     }
+
+    // Obtener artículos relacionados
+    const relatedArticles = await getRelatedArticles(post.id, post.category, 4);
 
     const formattedDate = format(new Date(post.publishedAt), 'dd \'de\' MMMM \'de\' yyyy', { locale: es });
 
@@ -95,15 +98,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Contenido principal */}
                     <article className="lg:col-span-2">
-                        {/* Navegación */}
+                        {/* Navegación breadcrumb */}
                         <nav className="mb-6">
-                            <Link
-                                href="/"
-                                className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                            >
-                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                Volver al inicio
-                            </Link>
+                            <ol className="flex items-center space-x-2 text-sm text-gray-500">
+                                <li>
+                                    <Link href="/" className="hover:text-blue-600 transition-colors duration-200">
+                                        Inicio
+                                    </Link>
+                                </li>
+                                <li className="flex items-center">
+                                    <span className="mx-2">/</span>
+                                    <Link
+                                        href={`/blog/${post.category}`}
+                                        className="hover:text-blue-600 transition-colors duration-200"
+                                    >
+                                        {getCategoryName(post.category)}
+                                    </Link>
+                                </li>
+                                <li className="flex items-center">
+                                    <span className="mx-2">/</span>
+                                    <span className="text-gray-900 font-medium truncate max-w-xs">
+                                        {post.title.length > 30 ? `${post.title.substring(0, 30)}...` : post.title}
+                                    </span>
+                                </li>
+                            </ol>
                         </nav>
 
                         {/* Header del artículo */}
@@ -158,14 +176,61 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
                         {/* Contenido del artículo */}
                         <div className="prose prose-lg max-w-none mb-8">
-                            <div className="text-gray-700 leading-relaxed space-y-4">
-                                {post.content.split('\n').map((paragraph, index) => (
-                                    paragraph.trim() && (
-                                        <p key={index} className="mb-4">
+                            <div className="text-gray-700 leading-relaxed space-y-6">
+                                {post.content.split('\n').map((paragraph, index) => {
+                                    if (!paragraph.trim()) return null;
+
+                                    // Detectar headers markdown
+                                    if (paragraph.startsWith('##')) {
+                                        return (
+                                            <h2 key={index} className="text-2xl font-bold text-gray-900 mt-8 mb-4">
+                                                {paragraph.replace(/^##\s*/, '')}
+                                            </h2>
+                                        );
+                                    }
+
+                                    if (paragraph.startsWith('###')) {
+                                        return (
+                                            <h3 key={index} className="text-xl font-semibold text-gray-800 mt-6 mb-3">
+                                                {paragraph.replace(/^###\s*/, '')}
+                                            </h3>
+                                        );
+                                    }
+
+                                    // Detectar listas numeradas
+                                    if (/^\d+\.\s/.test(paragraph)) {
+                                        return (
+                                            <div key={index} className="bg-blue-50 border-l-4 border-blue-400 p-4 my-4">
+                                                <p className="text-blue-800 font-medium">
+                                                    {paragraph}
+                                                </p>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <p key={index} className="mb-4 text-lg leading-relaxed">
                                             {paragraph}
                                         </p>
-                                    )
-                                ))}
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Botones de acción */}
+                        <div className="flex items-center justify-between mb-8 p-4 bg-gray-50 rounded-lg">
+                            <div className="flex items-center space-x-4">
+                                <button className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                                    <Share2 className="w-5 h-5" />
+                                    <span>Compartir</span>
+                                </button>
+                                <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                                    <Bookmark className="w-5 h-5" />
+                                    <span>Guardar</span>
+                                </button>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                Tiempo de lectura: {post.readTime} minutos
                             </div>
                         </div>
 
@@ -213,39 +278,112 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                             </div>
                         )}
 
-                        {/* Call to action */}
-                        <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-6 text-center">
-                            <h3 className="text-xl font-bold mb-2">
+                        {/* Call to action mejorado */}
+                        <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-8 text-center mb-8">
+                            <h3 className="text-2xl font-bold mb-3">
                                 ¿Te gustó este artículo?
                             </h3>
-                            <p className="mb-4">
-                                Suscríbete para recibir más contenido como este directamente en tu email.
+                            <p className="mb-6 text-lg">
+                                Mantente al día con las últimas noticias de tecnología y finanzas.
                             </p>
-                            <div className="flex max-w-md mx-auto">
+                            <div className="flex flex-col sm:flex-row max-w-lg mx-auto gap-4">
                                 <input
                                     type="email"
                                     placeholder="Tu email"
-                                    className="flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none"
+                                    className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                                 />
-                                <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-2 rounded-r-lg transition-colors duration-200">
+                                <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-8 py-3 rounded-lg transition-colors duration-200">
                                     Suscribirse
                                 </button>
                             </div>
+                            <p className="text-sm text-purple-100 mt-3">
+                                Únete a más de 10,000 lectores que reciben contenido exclusivo.
+                            </p>
                         </div>
+
+                        {/* Artículos relacionados */}
+                        {relatedArticles.length > 0 && (
+                            <section className="mb-8">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                                    Artículos relacionados en {getCategoryName(post.category)}
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {relatedArticles.map((article) => (
+                                        <BlogCard key={article.id} post={article} />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
                     </article>
 
                     {/* Sidebar */}
                     <aside className="lg:col-span-1">
                         <div className="sticky top-20 space-y-8">
+                            {/* Estadísticas del artículo */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h3 className="text-lg font-bold text-gray-900 mb-4">📊 Información del artículo</h3>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Tiempo de lectura:</span>
+                                        <span className="font-semibold">{post.readTime} min</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Categoría:</span>
+                                        <span className="font-semibold">{getCategoryName(post.category)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Autor:</span>
+                                        <span className="font-semibold">{post.author}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Fuente:</span>
+                                        <span className="font-semibold">{post.source}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Publicado:</span>
+                                        <span className="font-semibold">{formattedDate}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Tabla de contenidos si hay headers */}
+                            {post.content.includes('##') && (
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Contenido</h3>
+                                    <div className="space-y-2">
+                                        {post.content.split('\n')
+                                            .filter(line => line.startsWith('##'))
+                                            .map((header, index) => (
+                                                <div key={index} className="text-sm">
+                                                    <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                                                        {header.replace(/^##\s*/, '').replace(/^###\s*/, '  • ')}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <SidebarAd />
                             <AffiliateSidebar />
 
-                            {/* Artículos relacionados */}
+                            {/* Navegación de categoría */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h3 className="text-lg font-bold text-gray-900 mb-4">📰 Más en {getCategoryName(post.category)}</h3>
+                                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                                    📰 Más en {getCategoryName(post.category)}
+                                </h3>
                                 <div className="space-y-3">
-                                    <Link href={`/blog/${post.category}`} className="block text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                                    <Link
+                                        href={`/blog/${post.category}`}
+                                        className="block text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                                    >
                                         Ver todos los artículos de {getCategoryName(post.category)}
+                                    </Link>
+                                    <Link
+                                        href="/"
+                                        className="block text-gray-600 hover:text-gray-800 transition-colors duration-200"
+                                    >
+                                        Volver al inicio
                                     </Link>
                                 </div>
                             </div>
