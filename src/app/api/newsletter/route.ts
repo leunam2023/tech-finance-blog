@@ -179,6 +179,20 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
 
+    if (action === 'debug') {
+      // Solo para verificar configuración - REMOVER EN PRODUCCIÓN
+      const emailService = createEmailService();
+      return NextResponse.json({
+        hasConvertKitKey: !!process.env.CONVERTKIT_API_KEY,
+        hasFormId: !!process.env.CONVERTKIT_FORM_ID,
+        keyPrefix: process.env.CONVERTKIT_API_KEY?.substring(0, 10) + '...',
+        formId: process.env.CONVERTKIT_FORM_ID,
+        emailServiceCreated: !!emailService,
+        serviceName: emailService?.name || 'none',
+        totalSubscribers: subscribers.length
+      });
+    }
+
     if (action === 'stats') {
       return NextResponse.json({
         totalSubscribers: subscribers.length,
