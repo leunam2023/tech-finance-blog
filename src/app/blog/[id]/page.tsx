@@ -11,7 +11,7 @@ import { AffiliateSidebar } from '@/components/AffiliateCard';
 import BlogCard from '@/components/BlogCard';
 import StructuredData, { generateArticleStructuredData } from '@/components/StructuredData';
 import SocialShare, { QuickShare } from '@/components/SocialShare';
-import { getArticleById, getRelatedArticles } from '@/lib/newsApi';
+import { getRelatedArticles, getMixedNews } from '@/lib/newsApi';
 import { generateBlogPostMetadata } from '@/lib/seo';
 import { BlogPost } from '@/types/blog';
 
@@ -21,28 +21,33 @@ interface BlogPostPageProps {
     }>;
 }
 
-// Función simplificada que usa únicamente getArticleById
+// Función que usa los mismos datos que la página principal
 async function getPostById(id: string): Promise<BlogPost | null> {
     try {
         console.log('[getPostById] 🔍 Buscando post con ID:', id);
 
-        // Usar directamente getArticleById que ya probamos que funciona
-        const post = await getArticleById(id);
+        // Usar exactamente la misma fuente que la página principal
+        const allPosts = await getMixedNews(100); // Obtener más posts para asegurar que encontremos el artículo
+
+        console.log('[getPostById] 📰 Posts obtenidos:', allPosts.length);
+
+        // Buscar el post por ID directamente
+        const post = allPosts.find(p => p.id === id);
 
         if (post) {
             console.log('[getPostById] ✅ Post encontrado:', post.title);
             return post;
         }
 
-        console.log('[getPostById] ❌ Post no encontrado con getArticleById');
+        console.log('[getPostById] ❌ Post no encontrado para ID:', id);
+        console.log('[getPostById] 🔍 IDs disponibles:', allPosts.slice(0, 5).map(p => p.id));
+
         return null;
     } catch (error) {
         console.error('[getPostById] ❌ Error:', error);
         return null;
     }
-}
-
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+} export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
     try {
         const { id } = await params;
         const post = await getPostById(id);

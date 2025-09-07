@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getArticleById } from '@/lib/newsApi';
+import { getMixedNews } from '@/lib/newsApi';
 
 export default async function TestSpecificIdPage() {
     const targetId = 'news_tf8qsq';
@@ -7,8 +7,19 @@ export default async function TestSpecificIdPage() {
     console.log(`=== TESTING SPECIFIC ID: ${targetId} ===`);
 
     try {
-        // Intentar buscar el artículo específico
-        const article = await getArticleById(targetId);
+        // Usar la misma fuente que la página principal
+        const allPosts = await getMixedNews(100);
+        console.log(`Total posts obtenidos: ${allPosts.length}`);
+
+        // Buscar el artículo específico
+        const article = allPosts.find(p => p.id === targetId);
+
+        console.log(`Artículo encontrado: ${!!article}`);
+        if (article) {
+            console.log(`Título: ${article.title}`);
+        } else {
+            console.log('IDs disponibles:', allPosts.slice(0, 10).map(p => p.id));
+        }
 
         return (
             <div className="max-w-4xl mx-auto p-6">
@@ -85,16 +96,16 @@ export default async function TestSpecificIdPage() {
                     <div className="bg-red-50 border border-red-200 rounded-lg p-6">
                         <h2 className="text-xl font-bold text-red-800 mb-4">❌ ARTÍCULO NO ENCONTRADO</h2>
                         <p className="text-red-700">
-                            La función getArticleById no pudo encontrar un artículo con el ID: <code>{targetId}</code>
+                            No se pudo encontrar un artículo con el ID: <code>{targetId}</code> en los datos de getMixedNews.
                         </p>
 
                         <div className="mt-4">
                             <p className="text-red-700 font-medium">Posibles causas:</p>
                             <ul className="list-disc list-inside text-red-600 mt-2 space-y-1">
-                                <li>El ID no coincide con ningún artículo generado</li>
-                                <li>Hay un problema en la función generateId</li>
-                                <li>Los datos de la API han cambiado</li>
-                                <li>Error en la lógica de búsqueda</li>
+                                <li>El ID no existe en los datos actuales de la API</li>
+                                <li>Los datos han cambiado desde que se generó el ID</li>
+                                <li>Error en la función generateId o en getMixedNews</li>
+                                <li>El artículo está fuera del rango de los primeros 100 posts</li>
                             </ul>
                         </div>
                     </div>
