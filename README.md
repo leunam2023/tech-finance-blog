@@ -1,20 +1,25 @@
-# TechFinance Blog
+# Tech Finance Blog
 
-Un blog moderno sobre tecnología y finanzas construido con Next.js, optimizado para SEO y monetización.
+Un blog moderno sobre tecnología y finanzas construido con Next.js 15, optimizado para SEO y performance.
+
+## 🌐 Live Demo
+
+🔗 **[Ver Demo en Vivo](https://tech-finance-blog.vercel.app)**
+
+## 👨‍💼 Acerca del Proyecto
+
+Blog personal de **Julio Cesar Hernández Pedraza**, desarrollador especializado en tecnología y finanzas, compartiendo insights y análisis sobre las últimas tendencias en ambos sectores.
 
 ## 🚀 Características
 
-- **⚡ Next.js 15** con App Router y TypeScript
-- **🎨 Tailwind CSS** para diseño moderno y responsivo
-- **📰 API de Noticias** integración automática con NewsAPI
-- **🔍 SEO Optimizado** con metadatos dinámicos y sitemap
-- **💰 Monetización Integrada**:
-  - Google AdSense
-  - Enlaces de afiliados
-  - Newsletter
-  - Banners promocionales
-- **📱 Diseño Responsivo** optimizado para móviles
+- **⚡ Next.js 15** con App Router, TypeScript y Turbopack
+- **🎨 Tailwind CSS 4** para diseño moderno y responsivo
+- **📰 NewsAPI** integración automática para contenido dinámico
+- **🔍 SEO Optimizado** con metadatos dinámicos y sitemap automático
+- **📱 Diseño Responsivo** optimizado para todas las pantallas
 - **🎯 Performance** optimizado para Core Web Vitals
+- **📧 Sistema de Newsletter** integrado
+- **🔐 Políticas de Privacidad** y términos completos
 
 ## 📦 Instalación
 
