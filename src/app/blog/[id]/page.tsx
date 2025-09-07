@@ -21,48 +21,23 @@ interface BlogPostPageProps {
     }>;
 }
 
-// Esta función busca el post por ID usando la nueva función optimizada
+// Esta función busca el post por ID usando la función optimizada getArticleById
 async function getPostById(id: string): Promise<BlogPost | null> {
     try {
-        console.log('Buscando post con ID:', id);
+        console.log('[getPostById] Buscando post con ID:', id);
 
-        // Primero intentar con la función optimizada
+        // Usar directamente getArticleById que ya sabemos que funciona
         const post = await getArticleById(id);
+
         if (post) {
-            console.log('Post encontrado con getArticleById');
+            console.log('[getPostById] ✅ Post encontrado:', post.title);
             return post;
         }
 
-        console.log('Post no encontrado con getArticleById, intentando con getMixedNews');
-
-        // Si no se encuentra, buscar en todas las noticias (fallback)
-        const allPosts: BlogPost[] = await getMixedNews(50); // Reducir el número para evitar timeouts
-        const foundPost = allPosts.find((p: BlogPost) => p.id === id);
-
-        if (foundPost) {
-            console.log('Post encontrado en getMixedNews');
-            return foundPost;
-        }
-
-        console.log('Post no encontrado, intentando decodificación de URL');
-
-        // Último fallback: buscar por URL si el ID parece ser una URL codificada
-        if (id.includes('_') || id.length > 20) {
-            const decodedUrl = decodeArticleId(id);
-            if (decodedUrl) {
-                console.log('URL decodificada:', decodedUrl);
-                const postByUrl = allPosts.find((p: BlogPost) => p.sourceUrl === decodedUrl);
-                if (postByUrl) {
-                    console.log('Post encontrado por URL');
-                    return postByUrl;
-                }
-            }
-        }
-
-        console.log('Post no encontrado en ningún método');
+        console.log('[getPostById] ❌ Post no encontrado');
         return null;
     } catch (error) {
-        console.error('Error finding post by ID:', error);
+        console.error('[getPostById] Error finding post by ID:', error);
         return null;
     }
 }

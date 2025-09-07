@@ -474,29 +474,57 @@ function calculateReadTime(content: string): number {
 function expandArticleContent(article: NewsArticle): string {
   let content = article.content || article.description || '';
   
-  // Si el contenido es muy corto, expandirlo con información adicional
+  // Si el contenido es muy corto, expandirlo con información adicional relevante
   if (content.length < 500) {
     const expandedContent = [
+      '## Resumen de la noticia',
+      '',
       content,
       '',
-      '## Detalles adicionales',
+      '## Análisis y contexto',
       '',
-      'Este artículo ha sido obtenido de fuentes confiables de noticias especializadas en tecnología y finanzas.',
-      '',
-      '### Puntos clave:',
-      ''
+      'Esta noticia es parte de las tendencias actuales en el sector. A continuación, te proporcionamos un análisis más detallado:'
     ];
 
     // Extraer puntos clave del título y descripción
     const keyPoints = extractKeyPoints(article.title, article.description);
-    keyPoints.forEach((point, index) => {
-      expandedContent.push(`${index + 1}. ${point}`);
-    });
+    if (keyPoints.length > 0) {
+      expandedContent.push('');
+      expandedContent.push('### Puntos clave:');
+      expandedContent.push('');
+      keyPoints.forEach((point, index) => {
+        expandedContent.push(`**${index + 1}.** ${point}`);
+        expandedContent.push('');
+      });
+    }
 
+    // Agregar contexto específico según el tipo de noticia
+    const isFinance = (article.title + ' ' + article.description).toLowerCase().includes('bitcoin') ||
+                     (article.title + ' ' + article.description).toLowerCase().includes('crypto') ||
+                     (article.title + ' ' + article.description).toLowerCase().includes('finance');
+    
+    const isTech = (article.title + ' ' + article.description).toLowerCase().includes('tech') ||
+                   (article.title + ' ' + article.description).toLowerCase().includes('ai') ||
+                   (article.title + ' ' + article.description).toLowerCase().includes('software');
+
+    if (isFinance) {
+      expandedContent.push('### Impacto financiero');
+      expandedContent.push('');
+      expandedContent.push('Esta noticia puede tener implicaciones significativas en los mercados financieros y las decisiones de inversión. Te recomendamos consultar fuentes especializadas para análisis más profundos.');
+    } else if (isTech) {
+      expandedContent.push('### Impacto tecnológico');
+      expandedContent.push('');
+      expandedContent.push('Este desarrollo tecnológico puede influir en la forma en que trabajamos y vivimos. La innovación continua en este sector sigue transformando múltiples industrias.');
+    } else {
+      expandedContent.push('### Relevancia e impacto');
+      expandedContent.push('');
+      expandedContent.push('Esta noticia refleja tendencias importantes que pueden afectar diversos aspectos de nuestra sociedad y economía.');
+    }
+    
     expandedContent.push('');
-    expandedContent.push('### Contexto del mercado');
+    expandedContent.push('### ¿Quieres saber más?');
     expandedContent.push('');
-    expandedContent.push('En el contexto actual del mercado tecnológico y financiero, esta noticia representa una oportunidad importante para entender las tendencias que están moldeando nuestro futuro digital.');
+    expandedContent.push('Para obtener información más detallada y actualizada sobre este tema, te recomendamos usar el botón "Buscar en Google" que encontrarás a continuación. Esto te permitirá acceder a múltiples fuentes y análisis especializados.');
     
     content = expandedContent.join('\n');
   }

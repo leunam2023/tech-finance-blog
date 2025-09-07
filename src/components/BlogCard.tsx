@@ -10,6 +10,19 @@ interface BlogCardProps {
     featured?: boolean;
 }
 
+// Función helper para truncar texto
+const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+
+    // Buscar el último espacio antes del límite para evitar cortar palabras
+    const truncated = text.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+
+    return lastSpace > 0
+        ? truncated.substring(0, lastSpace) + '...'
+        : truncated + '...';
+};
+
 const BlogCard = ({ post, featured = false }: BlogCardProps) => {
     const formattedDate = format(new Date(post.publishedAt), 'dd MMM yyyy', { locale: es });
 
@@ -88,8 +101,8 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
                         </h2>
                     </Link>
 
-                    <p className="text-gray-600 mb-4 line-clamp-3">
-                        {post.description}
+                    <p className="text-gray-600 mb-4">
+                        {truncateText(post.description, 120)}
                     </p>
 
                     {/* Meta información */}
@@ -177,8 +190,8 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
                     </h3>
                 </Link>
 
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {post.description}
+                <p className="text-gray-600 text-sm mb-3">
+                    {truncateText(post.description, 80)}
                 </p>
 
                 {/* Meta información */}
