@@ -7,7 +7,7 @@ User-agent: *
 Disallow: /api/
 
 # Host
-Host: http://localhost:3000
+Host: https://tech-finance-blog.vercel.app
 
 # Sitemaps
-Sitemap: http://localhost:3000/sitemap.xml
+Sitemap: https://tech-finance-blog.vercel.app/sitemap.xml

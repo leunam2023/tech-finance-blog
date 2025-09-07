@@ -116,8 +116,10 @@ export const formatters = {
 };
 
 // Configuración específica para diferentes páginas
-export const pageConfig = {
+export const pageConfigs = {
   about: {
+    title: 'Acerca de | TechFinance Blog',
+    description: 'Conoce más sobre TechFinance Blog y nuestro equipo especializado en tecnología y finanzas.',
     teamMembers: [
       {
         name: COMPANY_INFO.founder.name,
@@ -130,6 +132,8 @@ export const pageConfig = {
   },
   
   contact: {
+    title: 'Contacto | TechFinance Blog',
+    description: 'Ponte en contacto con nosotros para consultas, colaboraciones o soporte técnico.',
     responseTime: COMPANY_INFO.services.responseTime.general,
     urgentNote: COMPANY_INFO.services.responseTime.urgent,
     businessHours: [
@@ -137,7 +141,42 @@ export const pageConfig = {
       COMPANY_INFO.businessHours.saturday,
       COMPANY_INFO.businessHours.sunday
     ].join('\n')
+  },
+
+  trending: {
+    title: 'Tendencias | TechFinance Blog',
+    description: 'Descubre las últimas tendencias en tecnología, finanzas, criptomonedas y el mundo digital. Mantente al día con las noticias más populares del momento.',
+    categories: [
+      {
+        name: 'Tech Viral',
+        icon: '🚀',
+        description: 'Las últimas innovaciones tecnológicas que están revolucionando el mundo digital.'
+      },
+      {
+        name: 'Crypto Trends',
+        icon: '💰',
+        description: 'Movimientos del mercado crypto y las monedas digitales más populares.'
+      },
+      {
+        name: 'Market Movers',
+        icon: '📈',
+        description: 'Las empresas y sectores que están marcando tendencia en los mercados.'
+      }
+    ]
+  },
+
+  privacy: {
+    title: 'Política de Privacidad | TechFinance Blog',
+    description: 'Información sobre cómo recopilamos, usamos y protegemos tus datos personales en TechFinance Blog.'
+  },
+
+  terms: {
+    title: 'Términos y Condiciones | TechFinance Blog',
+    description: 'Términos y condiciones de uso del sitio web TechFinance Blog.'
   }
 };
+
+// Backward compatibility
+export const pageConfig = pageConfigs;
 
 export default COMPANY_INFO;

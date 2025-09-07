@@ -70,6 +70,69 @@ const demoFinanceArticles: NewsArticle[] = [
   }
 ];
 
+const demoTrendingArticles: NewsArticle[] = [
+  {
+    source: { id: 'techcrunch', name: 'TechCrunch' },
+    author: 'Alex Rivera',
+    title: '🔥 Meta lanza nuevas gafas de realidad aumentada que cambiarán todo',
+    description: 'Las nuevas Meta AR Glasses prometen revolucionar la forma en que interactuamos con el mundo digital.',
+    url: 'https://techcrunch.com/demo-trending-1',
+    urlToImage: 'https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=800&h=400&fit=crop',
+    publishedAt: new Date().toISOString(),
+    content: 'Meta ha presentado sus gafas de realidad aumentada más avanzadas hasta la fecha, prometiendo una experiencia inmersiva sin precedentes. Estas gafas incorporan tecnología de seguimiento ocular y procesamiento neuronal que permite una interacción más natural con elementos digitales superpuestos al mundo real.'
+  },
+  {
+    source: { id: 'coindesk', name: 'CoinDesk' },
+    author: 'Sarah Bitcoin',
+    title: '💰 Ethereum 2.0 alcanza milestone histórico con 32 millones de ETH stakked',
+    description: 'La red Ethereum confirma su transición exitosa con niveles de participación récord en el staking.',
+    url: 'https://coindesk.com/demo-trending-2',
+    urlToImage: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 1800000).toISOString(),
+    content: 'Ethereum 2.0 ha alcanzado un hito histórico con más de 32 millones de ETH comprometidos en staking, representando aproximadamente el 27% del suministro total de Ethereum. Este nivel de participación demuestra la confianza de la comunidad en la red proof-of-stake.'
+  },
+  {
+    source: { id: 'bloomberg', name: 'Bloomberg' },
+    author: 'Tech Insider',
+    title: '🚀 Tesla revela su robot humanoide: Optimus Gen-2 ya está en producción',
+    description: 'El nuevo robot de Tesla promete revolucionar la automatización doméstica e industrial.',
+    url: 'https://bloomberg.com/demo-trending-3',
+    urlToImage: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 3600000).toISOString(),
+    content: 'Tesla ha anunciado que su robot humanoide Optimus Gen-2 ha entrado en fase de producción limitada. El robot, diseñado para tareas domésticas y de manufactura, incorpora la tecnología de IA más avanzada de la compañía y promete estar disponible para consumidores a finales de 2025.'
+  },
+  {
+    source: { id: 'wired', name: 'Wired' },
+    author: 'Future Tech',
+    title: '🌟 Google anuncia Gemini Ultra: la IA que supera a GPT-4 en todos los benchmarks',
+    description: 'La nueva versión de Gemini establece nuevos récords en razonamiento, matemáticas y programación.',
+    url: 'https://wired.com/demo-trending-4',
+    urlToImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 5400000).toISOString(),
+    content: 'Google DeepMind ha presentado Gemini Ultra, su modelo de IA más avanzado que supera a GPT-4 en todos los benchmarks estándar de la industria. El modelo destaca especialmente en razonamiento matemático, programación y comprensión multimodal, estableciendo un nuevo estándar para los modelos de lenguaje.'
+  },
+  {
+    source: { id: 'forbes', name: 'Forbes' },
+    author: 'Market Watch',
+    title: '📈 Las 10 startups más valiosas de 2024: unicornios que dominan el mercado',
+    description: 'Análisis exclusivo de las startups que han alcanzado valuaciones de más de $1 billón este año.',
+    url: 'https://forbes.com/demo-trending-5',
+    urlToImage: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 7200000).toISOString(),
+    content: 'El ecosistema de startups ha visto un crecimiento explosivo en 2024, con diez nuevas empresas alcanzando valuaciones de unicornio. Estas compañías, que abarcan desde IA hasta biotecnología, están redefiniendo industrias enteras y atrayendo inversiones récord de fondos de capital de riesgo.'
+  },
+  {
+    source: { id: 'ars-technica', name: 'Ars Technica' },
+    author: 'Space News',
+    title: '🛸 SpaceX logra el primer aterrizaje exitoso en Marte con Starship',
+    description: 'Hito histórico: la primera misión tripulada a Marte aterriza exitosamente.',
+    url: 'https://arstechnica.com/demo-trending-6',
+    urlToImage: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 9000000).toISOString(),
+    content: 'SpaceX ha logrado un hito histórico al conseguir el primer aterrizaje exitoso de una misión tripulada en Marte. La nave Starship, con una tripulación de seis astronautas, aterrizó en la región de Chryse Planitia después de un viaje de siete meses, marcando el comienzo de la era de la exploración humana interplanetaria.'
+  }
+];
+
 const demoBusinessArticles: NewsArticle[] = [
   {
     source: { id: 'business-insider', name: 'Business Insider' },
@@ -154,6 +217,36 @@ export async function getFinanceNews(page: number = 1, pageSize: number = 10): P
   }
 }
 
+export async function getTrendingNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
+  try {
+    // Si tenemos una API key válida, usar la API real para trending
+    if (NEWS_API_KEY !== 'demo' && NEWS_API_KEY !== 'a52b8a8ca84d4f1484b5d8cd505394be') {
+      const response = await fetch(
+        `${NEWS_API_BASE_URL}/everything?q=trending OR viral OR popular OR breaking OR latest&language=en&sortBy=popularity&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`,
+        { next: { revalidate: 1800 } } // Cache por 30 minutos (más frecuente para trending)
+      );
+      
+      if (response.ok) {
+        return await response.json();
+      }
+    }
+    
+    // Usar datos de demostración para trending
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const articles = demoTrendingArticles.slice(startIndex, endIndex);
+    
+    return {
+      status: 'ok',
+      totalResults: demoTrendingArticles.length,
+      articles
+    };
+  } catch (error) {
+    console.error('Error fetching trending news:', error);
+    return { status: 'error', totalResults: 0, articles: [] };
+  }
+}
+
 export async function getBusinessNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
   try {
     // Si tenemos una API key válida, usar la API real
@@ -226,9 +319,18 @@ export async function getNewsByCategory(category: string, page: number = 1, page
     case 'business':
     case 'negocios':
       return getBusinessNews(page, pageSize);
+    case 'trending':
+    case 'tendencias':
+      return getTrendingNews(page, pageSize);
     default:
       return getTechnologyNews(page, pageSize);
   }
+}
+
+// Función para obtener noticias por categoría simple (para components)
+export async function fetchNews(category: string, pageSize: number = 12): Promise<NewsArticle[]> {
+  const response = await getNewsByCategory(category, 1, pageSize);
+  return response.articles || [];
 }
 
 // Función para generar un ID único basado en la URL
@@ -278,16 +380,18 @@ export function convertNewsArticleToBlogPost(article: NewsArticle, category: 'te
 // Función para obtener artículos mezclados de todas las categorías
 export async function getMixedNews(pageSize: number = 20): Promise<BlogPost[]> {
   try {
-    const [techNews, financeNews, businessNews] = await Promise.all([
-      getTechnologyNews(1, Math.ceil(pageSize / 3)),
-      getFinanceNews(1, Math.ceil(pageSize / 3)),
-      getBusinessNews(1, Math.ceil(pageSize / 3))
+    const [techNews, financeNews, businessNews, trendingNews] = await Promise.all([
+      getTechnologyNews(1, Math.ceil(pageSize / 4)),
+      getFinanceNews(1, Math.ceil(pageSize / 4)),
+      getBusinessNews(1, Math.ceil(pageSize / 4)),
+      getTrendingNews(1, Math.ceil(pageSize / 4))
     ]);
 
     const allPosts: BlogPost[] = [
       ...techNews.articles.map(article => convertNewsArticleToBlogPost(article, 'technology')),
       ...financeNews.articles.map(article => convertNewsArticleToBlogPost(article, 'finance')),
-      ...businessNews.articles.map(article => convertNewsArticleToBlogPost(article, 'general'))
+      ...businessNews.articles.map(article => convertNewsArticleToBlogPost(article, 'general')),
+      ...trendingNews.articles.map(article => convertNewsArticleToBlogPost(article, 'general'))
     ];
 
     // Eliminar duplicados basados en títulos similares y URLs
@@ -306,7 +410,8 @@ export async function getMixedNews(pageSize: number = 20): Promise<BlogPost[]> {
     const allPosts: BlogPost[] = [
       ...demoTechArticles.map(article => convertNewsArticleToBlogPost(article, 'technology')),
       ...demoFinanceArticles.map(article => convertNewsArticleToBlogPost(article, 'finance')),
-      ...demoBusinessArticles.map(article => convertNewsArticleToBlogPost(article, 'general'))
+      ...demoBusinessArticles.map(article => convertNewsArticleToBlogPost(article, 'general')),
+      ...demoTrendingArticles.map(article => convertNewsArticleToBlogPost(article, 'general'))
     ];
 
     // Eliminar duplicados en los datos de fallback también
