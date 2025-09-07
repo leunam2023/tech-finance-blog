@@ -11,7 +11,7 @@ import { AffiliateSidebar } from '@/components/AffiliateCard';
 import BlogCard from '@/components/BlogCard';
 import StructuredData, { generateArticleStructuredData } from '@/components/StructuredData';
 import SocialShare, { QuickShare } from '@/components/SocialShare';
-import { getArticleById, getRelatedArticles, getMixedNews } from '@/lib/newsApi';
+import { getArticleById, getRelatedArticles } from '@/lib/newsApi';
 import { generateBlogPostMetadata } from '@/lib/seo';
 import { BlogPost } from '@/types/blog';
 
@@ -21,12 +21,12 @@ interface BlogPostPageProps {
     }>;
 }
 
-// Esta función busca el post por ID usando la función optimizada getArticleById
+// Función simplificada que usa únicamente getArticleById
 async function getPostById(id: string): Promise<BlogPost | null> {
     try {
-        console.log('[getPostById] Buscando post con ID:', id);
+        console.log('[getPostById] 🔍 Buscando post con ID:', id);
 
-        // Usar directamente getArticleById que ya sabemos que funciona
+        // Usar directamente getArticleById que ya probamos que funciona
         const post = await getArticleById(id);
 
         if (post) {
@@ -34,39 +34,10 @@ async function getPostById(id: string): Promise<BlogPost | null> {
             return post;
         }
 
-        console.log('[getPostById] ❌ Post no encontrado');
+        console.log('[getPostById] ❌ Post no encontrado con getArticleById');
         return null;
     } catch (error) {
-        console.error('[getPostById] Error finding post by ID:', error);
-        return null;
-    }
-}
-
-// Función para intentar decodificar ID que pudiera ser una URL
-function decodeArticleId(id: string): string | null {
-    try {
-        // Intentar varios métodos de decodificación
-        if (id.startsWith('article_')) {
-            // Si es nuestro formato nuevo, extraer info
-            return null;
-        }
-
-        // Si parece base64, intentar decodificar (compatible con Node.js)
-        if (id.match(/^[A-Za-z0-9+/=_-]+$/)) {
-            try {
-                const cleanId = id.replace(/_/g, '/').replace(/-/g, '+');
-                // Usar Buffer en lugar de atob para compatibilidad con Node.js
-                const decoded = Buffer.from(cleanId, 'base64').toString('utf-8');
-                if (decoded.startsWith('http')) {
-                    return decoded;
-                }
-            } catch {
-                // Si falla la decodificación, continuar
-            }
-        }
-
-        return null;
-    } catch {
+        console.error('[getPostById] ❌ Error:', error);
         return null;
     }
 }
