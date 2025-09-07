@@ -179,7 +179,38 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
 
-    if (action === 'debug') {
+    if (action === 'test-convertkit') {
+      // Prueba directa a ConvertKit API
+      try {
+        const testEmail = 'test-' + Date.now() + '@ejemplo.com';
+        const response = await fetch(`https://api.convertkit.com/v3/forms/${process.env.CONVERTKIT_FORM_ID}/subscribe`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            api_key: process.env.CONVERTKIT_API_KEY,
+            email: testEmail,
+            tags: ['test-from-api']
+          }),
+        });
+
+        const data = await response.json();
+        
+        return NextResponse.json({
+          testEmail,
+          success: response.ok,
+          status: response.status,
+          response: data,
+          url: `https://api.convertkit.com/v3/forms/${process.env.CONVERTKIT_FORM_ID}/subscribe`
+        });
+      } catch (error) {
+        return NextResponse.json({
+          error: `Test error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          success: false
+        });
+      }
+    }
       // Solo para verificar configuración - REMOVER EN PRODUCCIÓN
       const emailService = createEmailService();
       return NextResponse.json({
