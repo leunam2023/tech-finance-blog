@@ -428,23 +428,23 @@ export async function fetchNews(category: string, pageSize: number = 12): Promis
   return response.articles || [];
 }
 
-// Función para generar un ID único basado en la URL
-function generateId(url: string): string {
-  // Crear un hash consistente y URL-safe basado en la URL
-  const encoder = new TextEncoder();
-  const data = encoder.encode(url);
-  
-  // Usar un hash simple pero consistente
+// Función para generar un ID único basado en la URL y título del artículo
+function generateId(url: string, title?: string): string {
+  // Crear un hash simple y consistente basado en la URL
   let hash = 0;
-  for (let i = 0; i < data.length; i++) {
-    const char = data[i];
+  const str = url;
+  
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   
-  // Convertir a string positivo y agregar prefijo para evitar IDs numéricos
+  // Convertir a string positivo en base 36 para generar un ID compacto
   const positiveHash = Math.abs(hash).toString(36);
-  return `article_${positiveHash}_${url.split('/').pop()?.substring(0, 8) || 'news'}`;
+  
+  // Crear un ID limpio sin caracteres especiales problemáticos
+  return `news_${positiveHash}`;
 }
 
 // Función para extraer tags relevantes del título y descripción
@@ -557,7 +557,7 @@ export async function getArticleById(id: string): Promise<BlogPost | null> {
           ...trendingNews.articles
         ];
 
-        const originalArticle = allArticles.find(article => generateId(article.url) === id);
+        const originalArticle = allArticles.find(article => generateId(article.url, article.title) === id);
         if (originalArticle) {
           post.content = expandArticleContent(originalArticle);
           post.readTime = calculateReadTime(post.content);
@@ -590,7 +590,7 @@ export async function getRelatedArticles(postId: string, category: string, limit
 // Función para convertir un artículo de NewsAPI a nuestro formato BlogPost
 export function convertNewsArticleToBlogPost(article: NewsArticle, category: 'technology' | 'finance' | 'general'): BlogPost {
   return {
-    id: generateId(article.url),
+    id: generateId(article.url, article.title),
     title: article.title,
     description: article.description || '',
     content: article.content || article.description || '',
