@@ -211,6 +211,8 @@ export async function GET(request: NextRequest) {
         });
       }
     }
+
+    if (action === 'debug') {
       // Solo para verificar configuración - REMOVER EN PRODUCCIÓN
       const emailService = createEmailService();
       return NextResponse.json({
