@@ -13,7 +13,6 @@ interface LazyImageProps {
     height?: number;
     sizes?: string;
     priority?: boolean;
-    placeholder?: string;
 }
 
 export default function LazyImage({
@@ -25,14 +24,13 @@ export default function LazyImage({
     height,
     sizes,
     priority = false,
-    placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Im0xNS4zNjIxIDI1LjA1IDMuNTMzNy00LjcxMTZMMjIuNDk5NyAyNWgwbDIuNS0zLjMzMzNMMjggMjcuNVY0MGgtMTlWMjUuMDVaIiBmaWxsPSIjQzFDN0NEIi8+CjxjaXJjbGUgY3g9IjE2IiBjeT0iMTUiIHI9IjIiIGZpbGw9IiNDMUM3Q0QiLz4KPC9zdmc+Cg=='
 }: LazyImageProps) {
     const { ref, isInView } = useInView<HTMLDivElement>({ threshold: 0.1, rootMargin: '50px' });
     const [isLoaded, setIsLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
 
     const imageProps = {
-        src: isInView ? src : placeholder,
+        src,
         alt,
         className: `${className} transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`,
         onLoad: () => setIsLoaded(true),
@@ -47,7 +45,7 @@ export default function LazyImage({
         return (
             <div
                 ref={ref}
-                className={`${className} bg-gray-200 flex items-center justify-center`}
+                className={`${className} ${fill ? 'absolute inset-0' : ''} bg-gray-200 flex items-center justify-center`}
             >
                 <div className="text-gray-400 text-sm">Error al cargar imagen</div>
             </div>
@@ -55,13 +53,27 @@ export default function LazyImage({
     }
 
     return (
-        <div ref={ref} className="relative">
-            {isInView && (
-                // eslint-disable-next-line jsx-a11y/alt-text
-                <Image {...imageProps} />
-            )}
-            {!isLoaded && isInView && (
-                <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div ref={ref} className="relative w-full h-full">
+            {isInView ? (
+                <>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    <Image {...imageProps} />
+                    {!isLoaded && (
+                        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+                            <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                    <svg
+                        className="w-12 h-12 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+                    </svg>
+                </div>
             )}
         </div>
     );

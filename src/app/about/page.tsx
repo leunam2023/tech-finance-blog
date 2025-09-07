@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { generateMetadata } from '@/lib/seo';
+import AnimatedSection from '@/components/AnimatedSection';
 import { Users, Target, Award, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { COMPANY_INFO, formatters } from '@/config/company';
@@ -49,121 +50,155 @@ export default function AboutPage() {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Hero Section */}
-                <div className="text-center mb-16">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                        Sobre <span className="text-blue-600">{COMPANY_INFO.site.shortName}</span>
-                    </h1>
-                    <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                        Conoce a {COMPANY_INFO.founder.name}, {COMPANY_INFO.founder.title} especializado en
-                        tecnología financiera, desarrollo de software y blockchain.
-                        Comprometido con brindar información confiable y análisis profundos
-                        para ayudarte a navegar en el mundo digital y financiero.
-                    </p>
-                </div>
+                <AnimatedSection animation="fadeIn" delay={0}>
+                    <div className="text-center mb-16">
+                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                            Sobre <span className="text-blue-600">{COMPANY_INFO.site.shortName}</span>
+                        </h1>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Conoce a {COMPANY_INFO.founder.name}, {COMPANY_INFO.founder.title} especializado en
+                            tecnología financiera, desarrollo de software y blockchain.
+                            Comprometido con brindar información confiable y análisis profundos
+                            para ayudarte a navegar en el mundo digital y financiero.
+                        </p>
+                    </div>
+                </AnimatedSection>
 
                 {/* Misión y Visión */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-                    <div className="bg-white rounded-xl shadow-lg p-8">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestra Misión</h2>
-                        <p className="text-gray-600 leading-relaxed">
-                            Democratizar el acceso a información de calidad sobre tecnología y finanzas,
-                            proporcionando análisis claros, actualizaciones del mercado y guías prácticas
-                            que empoderen a nuestros lectores para tomar decisiones informadas en sus
-                            inversiones y carrera profesional.
-                        </p>
-                    </div>
+                    <AnimatedSection animation="slideLeft" delay={200}>
+                        <div className="bg-white rounded-xl shadow-lg p-8">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestra Misión</h2>
+                            <p className="text-gray-600 leading-relaxed">
+                                Democratizar el acceso a información de calidad sobre tecnología y finanzas,
+                                proporcionando análisis claros, actualizaciones del mercado y guías prácticas
+                                que empoderen a nuestros lectores para tomar decisiones informadas en sus
+                                inversiones y carrera profesional.
+                            </p>
+                        </div>
+                    </AnimatedSection>
 
-                    <div className="bg-white rounded-xl shadow-lg p-8">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestra Visión</h2>
-                        <p className="text-gray-600 leading-relaxed">
-                            Ser la plataforma de referencia en español para profesionales, inversores
-                            y entusiastas que buscan mantenerse al día con las innovaciones tecnológicas
-                            y las oportunidades financieras del futuro, construyendo una comunidad
-                            educada y próspera.
-                        </p>
-                    </div>
+                    <AnimatedSection animation="slideRight" delay={300}>
+                        <div className="bg-white rounded-xl shadow-lg p-8">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Nuestra Visión</h2>
+                            <p className="text-gray-600 leading-relaxed">
+                                Ser la plataforma de referencia en español para profesionales, inversores
+                                y entusiastas que buscan mantenerse al día con las innovaciones tecnológicas
+                                y las oportunidades financieras del futuro, construyendo una comunidad
+                                educada y próspera.
+                            </p>
+                        </div>
+                    </AnimatedSection>
                 </div>
 
                 {/* Valores */}
-                <div className="mb-16">
-                    <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
-                        Nuestros Valores
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {values.map((value, index) => (
-                            <div key={index} className="text-center group">
-                                <div className="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 group-hover:bg-blue-200 transition-colors duration-200">
-                                    <value.icon className="w-8 h-8 text-blue-600 mx-auto" />
-                                </div>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-2">{value.title}</h3>
-                                <p className="text-gray-600">{value.description}</p>
-                            </div>
-                        ))}
+                <AnimatedSection animation="slideUp" delay={400}>
+                    <div className="mb-16">
+                        <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+                            Nuestros Valores
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {values.map((value, index) => (
+                                <AnimatedSection
+                                    key={index}
+                                    animation="scaleIn"
+                                    delay={500 + (index * 100)}
+                                >
+                                    <div className="text-center group">
+                                        <div className="bg-blue-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 group-hover:bg-blue-200 transition-colors duration-200">
+                                            <value.icon className="w-8 h-8 text-blue-600 mx-auto" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{value.title}</h3>
+                                        <p className="text-gray-600">{value.description}</p>
+                                    </div>
+                                </AnimatedSection>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                </AnimatedSection>
 
                 {/* Equipo */}
-                <div className="mb-16">
-                    <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
-                        Nuestro Equipo
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {teamMembers.map((member, index) => (
-                            <div key={index} className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow duration-200">
-                                <div className="text-4xl mb-4">{member.image}</div>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
-                                <p className="text-blue-600 font-medium mb-3">{member.role}</p>
-                                <p className="text-gray-600">{member.description}</p>
-                            </div>
-                        ))}
+                <AnimatedSection animation="fadeIn" delay={600}>
+                    <div className="mb-16">
+                        <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+                            Nuestro Equipo
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {teamMembers.map((member, index) => (
+                                <AnimatedSection
+                                    key={index}
+                                    animation="slideUp"
+                                    delay={700 + (index * 150)}
+                                >
+                                    <div className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow duration-200">
+                                        <div className="text-4xl mb-4">{member.image}</div>
+                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
+                                        <p className="text-blue-600 font-medium mb-3">{member.role}</p>
+                                        <p className="text-gray-600">{member.description}</p>
+                                    </div>
+                                </AnimatedSection>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                </AnimatedSection>
 
                 {/* Stats */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white p-8">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-                        <div>
-                            <div className="text-3xl font-bold mb-2">50K+</div>
-                            <div className="text-blue-100">Lectores mensuales</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold mb-2">500+</div>
-                            <div className="text-blue-100">Artículos publicados</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold mb-2">95%</div>
-                            <div className="text-blue-100">Satisfacción de usuarios</div>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-bold mb-2">3</div>
-                            <div className="text-blue-100">Años de experiencia</div>
+                <AnimatedSection animation="slideUp" delay={800}>
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                            <AnimatedSection animation="scaleIn" delay={900}>
+                                <div>
+                                    <div className="text-3xl font-bold mb-2">50K+</div>
+                                    <div className="text-blue-100">Lectores mensuales</div>
+                                </div>
+                            </AnimatedSection>
+                            <AnimatedSection animation="scaleIn" delay={1000}>
+                                <div>
+                                    <div className="text-3xl font-bold mb-2">500+</div>
+                                    <div className="text-blue-100">Artículos publicados</div>
+                                </div>
+                            </AnimatedSection>
+                            <AnimatedSection animation="scaleIn" delay={1100}>
+                                <div>
+                                    <div className="text-3xl font-bold mb-2">95%</div>
+                                    <div className="text-blue-100">Satisfacción de usuarios</div>
+                                </div>
+                            </AnimatedSection>
+                            <AnimatedSection animation="scaleIn" delay={1200}>
+                                <div>
+                                    <div className="text-3xl font-bold mb-2">3</div>
+                                    <div className="text-blue-100">Años de experiencia</div>
+                                </div>
+                            </AnimatedSection>
                         </div>
                     </div>
-                </div>
+                </AnimatedSection>
 
                 {/* Call to Action */}
-                <div className="text-center mt-16">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                        ¿Quieres formar parte de nuestra comunidad?
-                    </h2>
-                    <p className="text-xl text-gray-600 mb-8">
-                        Únete a miles de profesionales que ya confían en nuestro contenido
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a
-                            href="/contact"
-                            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
-                        >
-                            Contáctanos
-                        </a>
-                        <Link
-                            href="/"
-                            className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors duration-200"
-                        >
-                            Explora nuestros artículos
-                        </Link>
+                <AnimatedSection animation="fadeIn" delay={1300}>
+                    <div className="text-center mt-16">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                            ¿Quieres formar parte de nuestra comunidad?
+                        </h2>
+                        <p className="text-xl text-gray-600 mb-8">
+                            Únete a miles de profesionales que ya confían en nuestro contenido
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a
+                                href="/contact"
+                                className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200"
+                            >
+                                Contáctanos
+                            </a>
+                            <Link
+                                href="/"
+                                className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                            >
+                                Explora nuestros artículos
+                            </Link>
+                        </div>
                     </div>
-                </div>
+                </AnimatedSection>
             </div>
         </div>
     );
