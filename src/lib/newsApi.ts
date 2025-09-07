@@ -446,8 +446,8 @@ function generateId(url: string): string {
   // Crear un ID limpio sin caracteres especiales problemáticos
   const finalId = `news_${positiveHash}`;
   
-  // Debug logging para identificar problemas
-  console.log(`🔧 generateId DEBUG: URL="${url}" -> ID="${finalId}"`);
+  // Debug logging temporal para identificar problemas
+  console.log(`🔧 generateId: "${url}" -> "${finalId}"`);
   
   return finalId;
 }
@@ -540,7 +540,7 @@ function extractKeyPoints(title: string, description: string): string[] {
 // Función para obtener un artículo específico por ID con contenido expandido
 export async function getArticleById(id: string): Promise<BlogPost | null> {
   try {
-    console.log('🔍 Buscando artículo con ID:', id);
+    console.log('🔍 [getArticleById] Buscando artículo con ID:', id);
     
     // Obtener todos los artículos originales para regenerar IDs correctamente
     const [techNews, financeNews, businessNews, trendingNews] = await Promise.all([
@@ -557,17 +557,21 @@ export async function getArticleById(id: string): Promise<BlogPost | null> {
       ...trendingNews.articles
     ];
 
-    console.log('📰 Total artículos disponibles:', allArticles.length);
+    console.log('📰 [getArticleById] Total artículos disponibles:', allArticles.length);
 
     // Buscar el artículo que coincida con el ID
     const targetArticle = allArticles.find(article => {
       const generatedId = generateId(article.url);
-      console.log(`🔗 Comparando: ${generatedId} === ${id} ?`, generatedId === id);
-      return generatedId === id;
+      const isMatch = generatedId === id;
+      console.log(`🔗 [getArticleById] Comparando: "${generatedId}" === "${id}" ? ${isMatch}`);
+      if (isMatch) {
+        console.log(`✅ [getArticleById] MATCH ENCONTRADO para URL: ${article.url}`);
+      }
+      return isMatch;
     });
 
     if (targetArticle) {
-      console.log('✅ Artículo encontrado:', targetArticle.title);
+      console.log('✅ [getArticleById] Artículo encontrado:', targetArticle.title);
       
       // Determinar categoría basada en el contenido
       let category: 'technology' | 'finance' | 'general' = 'general';
@@ -586,7 +590,7 @@ export async function getArticleById(id: string): Promise<BlogPost | null> {
       blogPost.content = expandArticleContent(targetArticle);
       blogPost.readTime = calculateReadTime(blogPost.content);
       
-      console.log('🎯 BlogPost creado exitosamente');
+      console.log('🎯 [getArticleById] BlogPost creado exitosamente con ID:', blogPost.id);
       return blogPost;
     }
 
@@ -664,8 +668,11 @@ export async function getRelatedArticles(postId: string, category: string, limit
 
 // Función para convertir un artículo de NewsAPI a nuestro formato BlogPost
 export function convertNewsArticleToBlogPost(article: NewsArticle, category: 'technology' | 'finance' | 'general'): BlogPost {
+  const generatedId = generateId(article.url);
+  console.log(`🔄 [convertNewsArticleToBlogPost] Creando BlogPost: "${article.title.substring(0, 40)}..." -> ID: "${generatedId}"`);
+  
   return {
-    id: generateId(article.url),
+    id: generatedId,
     title: article.title,
     description: article.description || '',
     content: article.content || article.description || '',
