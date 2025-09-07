@@ -1,6 +1,6 @@
 import BlogCard from '@/components/BlogCard';
-import { HorizontalAd, NativeAd } from '@/components/AdBanner';
-import AdSense, { BannerAd, InArticleAd } from '@/components/AdSense';
+import { NativeAd } from '@/components/AdBanner';
+import { BannerAd } from '@/components/AdSense';
 import { AffiliateBanner, AffiliateSidebar } from '@/components/AffiliateCard';
 import NewsletterForm from '@/components/NewsletterForm';
 import { getMixedNews } from '@/lib/newsApi';

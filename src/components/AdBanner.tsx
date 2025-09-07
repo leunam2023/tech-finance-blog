@@ -9,6 +9,12 @@ interface AdBannerProps {
     className?: string;
 }
 
+declare global {
+    interface Window {
+        adsbygoogle: Record<string, unknown>[];
+    }
+}
+
 const AdBanner = ({
     adSlot,
     adFormat = 'auto',
@@ -17,7 +23,6 @@ const AdBanner = ({
 }: AdBannerProps) => {
     useEffect(() => {
         try {
-            // @ts-expect-error - AdSense global variable
             (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch (err) {
             console.error('AdSense error:', err);
