@@ -39,8 +39,21 @@
     </div>
 
     <script>
-        const apiUrl = 'http://localhost:3000/api/newsletter';
+        // Detectar automáticamente la URL base
+        const getApiUrl = () => {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:3000/api/newsletter';
+            } else {
+                return `${window.location.origin}/api/newsletter`;
+            }
+        };
+        
+        const apiUrl = getApiUrl();
         const outputDiv = document.getElementById('output');
+
+        // Log inicial para mostrar la URL que se está usando
+        console.log('🔗 API URL:', apiUrl);
+        console.log('🌍 Environment:', window.location.hostname === 'localhost' ? 'Development' : 'Production');
 
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();

@@ -12,8 +12,19 @@
     <div id="results"></div>
 
     <script>
-        const apiUrl = 'http://localhost:3000/api/newsletter';
+        // Detectar automáticamente la URL base
+        const getApiUrl = () => {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:3000/api/newsletter';
+            } else {
+                return `${window.location.origin}/api/newsletter`;
+            }
+        };
+        
+        const apiUrl = getApiUrl();
         const resultsDiv = document.getElementById('results');
+
+        console.log('🔗 API URL:', apiUrl);
 
         async function testSubscribe() {
             try {
