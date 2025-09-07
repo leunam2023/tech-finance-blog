@@ -31,6 +31,7 @@ module.exports = {
             '/contact',
             '/privacy',
             '/terms',
+            '/search',
             '/blog/technology',
             '/blog/finance',
             '/blog/trending'
