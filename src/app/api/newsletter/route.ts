@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createEmailService, sendWelcomeEmail } from '@/lib/emailServices';
-
-// Simulamos una base de datos en memoria para el desarrollo
-// En producción, esto debería ser una base de datos real
-const subscribers: { email: string; subscribedAt: string; id: string }[] = [];
+import SubscriberService from '@/lib/database';
 
 // Rate limiting simple (en producción usar Redis o similar)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -79,8 +76,11 @@ export async function POST(request: NextRequest) {
     // Normalizar email
     const normalizedEmail = email.toLowerCase().trim();
 
+    // Inicializar servicio de base de datos
+    const subscriberService = new SubscriberService();
+
     // Verificar si ya está suscrito
-    const existingSubscriber = subscribers.find(sub => sub.email === normalizedEmail);
+    const existingSubscriber = subscriberService.getSubscriberByEmail(normalizedEmail);
     
     if (existingSubscriber) {
       return NextResponse.json(
@@ -92,32 +92,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Crear nuevo suscriptor
-    const newSubscriber = {
-      id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      email: normalizedEmail,
-      subscribedAt: new Date().toISOString()
-    };
-
-    // Guardar suscriptor (en memoria para desarrollo)
-    subscribers.push(newSubscriber);
-
-    console.log('Nuevo suscriptor registrado:', {
-      id: newSubscriber.id,
-      email: normalizedEmail,
-      totalSubscribers: subscribers.length
-    });
-
-    // Intentar suscribir a servicio de email marketing externo
-    const emailService = createEmailService();
-    let emailServiceResult = null;
-    
     console.log('Checking email service configuration:', {
       hasConvertKitKey: !!process.env.CONVERTKIT_API_KEY,
       hasFormId: !!process.env.CONVERTKIT_FORM_ID,
-      emailServiceCreated: !!emailService,
-      serviceName: emailService?.name || 'none'
     });
+    
+    // Intentar suscribir a servicio de email marketing externo
+    const emailService = createEmailService();
+    let emailServiceResult = null;
     
     if (emailService) {
       try {
@@ -140,13 +122,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Enviar email de bienvenida (opcional)
-    if (emailService && emailServiceResult?.success) {
-      try {
-        await sendWelcomeEmail(normalizedEmail, emailService);
-      } catch (error) {
-        console.error('Error sending welcome email:', error);
-      }
+    // Guardar en base de datos local
+    const dbResult = subscriberService.addSubscriber({
+      email: normalizedEmail,
+      status: 'active',
+      source: 'website',
+      service_name: emailService?.name || 'none',
+      service_id: emailServiceResult?.success ? 'subscribed' : 'failed',
+      tags: JSON.stringify(['tech-finance-blog'])
+    });
+
+    if (!dbResult.success) {
+      console.error('Database error:', dbResult.error);
+    }
+
+    // Enviar email de bienvenida (independientemente del estado del servicio externo)
+    try {
+      console.log(`Attempting to send welcome email to: ${normalizedEmail}`);
+      const serviceForEmail = emailService || { name: 'Local', subscribe: () => Promise.resolve({ success: false, error: 'Local service' }) };
+      await sendWelcomeEmail(normalizedEmail, serviceForEmail);
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
     }
 
     // Respuesta exitosa
@@ -154,7 +150,7 @@ export async function POST(request: NextRequest) {
       { 
         message: '¡Gracias por suscribirte! 🎉 Te enviaremos las mejores noticias de tecnología y finanzas.',
         success: true,
-        subscriberId: newSubscriber.id
+        subscriberId: dbResult.id
       },
       { status: 200 }
     );
@@ -219,6 +215,9 @@ export async function GET(request: NextRequest) {
     if (action === 'debug') {
       // Solo para verificar configuración - REMOVER EN PRODUCCIÓN
       const emailService = createEmailService();
+      const subscriberService = new SubscriberService();
+      const stats = subscriberService.getStats();
+      
       return NextResponse.json({
         hasConvertKitKey: !!process.env.CONVERTKIT_API_KEY,
         hasFormId: !!process.env.CONVERTKIT_FORM_ID,
@@ -226,19 +225,22 @@ export async function GET(request: NextRequest) {
         formId: process.env.CONVERTKIT_FORM_ID,
         emailServiceCreated: !!emailService,
         serviceName: emailService?.name || 'none',
-        totalSubscribers: subscribers.length
+        totalSubscribers: stats.total
       });
     }
 
     if (action === 'stats') {
+      const subscriberService = new SubscriberService();
+      const stats = subscriberService.getStats();
+      const recentSubscribers = subscriberService.getActiveSubscribers(5);
+      
       return NextResponse.json({
-        totalSubscribers: subscribers.length,
-        recentSubscribers: subscribers
-          .slice(-5)
+        totalSubscribers: stats.total,
+        recentSubscribers: recentSubscribers
           .map(sub => ({
             id: sub.id,
             email: sub.email.replace(/(.{2}).*(@.*)/, '$1***$2'), // Ofuscar email
-            subscribedAt: sub.subscribedAt
+            subscribedAt: sub.subscribed_at
           }))
       });
     }

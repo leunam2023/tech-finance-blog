@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Management Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        button { margin: 5px; padding: 10px; background: #0070f3; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .results { margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        input { padding: 10px; width: 300px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Newsletter Management Test</h1>
+        
+        <div>
+            <h3>Suscribir Email</h3>
+            <input type="email" id="emailInput" placeholder="email@ejemplo.com" value="usuario@test.com">
+            <button onclick="subscribeEmail()">Suscribir</button>
+        </div>
+
+        <div>
+            <h3>Pruebas Rápidas</h3>
+            <button onclick="addTestEmails()">Agregar 5 Emails de Prueba</button>
+            <button onclick="getStats()">Ver Estadísticas</button>
+            <button onclick="clearResults()">Limpiar Resultados</button>
+        </div>
+
+        <div id="results" class="results">
+            <h3>Resultados:</h3>
+            <div id="output">Presiona un botón para empezar...</div>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'http://localhost:3000/api/newsletter';
+        const outputDiv = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            outputDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            outputDiv.innerHTML = 'Resultados limpiados...';
+        }
+
+        async function subscribeEmail() {
+            const email = document.getElementById('emailInput').value;
+            if (!email) {
+                log('Por favor ingresa un email', 'error');
+                return;
+            }
+
+            try {
+                log(`🔄 Suscribiendo: ${email}`);
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Suscrito exitosamente: ${email}`, 'success');
+                    log(`📝 Respuesta: ${data.message}`, 'success');
+                } else {
+                    log(`❌ Error: ${data.error} (${data.code})`, 'error');
+                }
+            } catch (error) {
+                log(`💥 Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        async function addTestEmails() {
+            const testEmails = [
+                'usuario1@test.com',
+                'usuario2@test.com', 
+                'admin@empresa.com',
+                'developer@tech.com',
+                'marketing@finance.com'
+            ];
+
+            log('🎯 Agregando emails de prueba...');
+            
+            for (const email of testEmails) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        log(`✅ ${email} - Suscrito`, 'success');
+                    } else {
+                        log(`⚠️ ${email} - ${data.error}`, 'error');
+                    }
+                } catch (error) {
+                    log(`💥 ${email} - Error: ${error.message}`, 'error');
+                }
+                
+                // Pequeña pausa entre requests
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            log('🏁 Pruebas completadas');
+        }
+
+        async function getStats() {
+            try {
+                log('📊 Obteniendo estadísticas...');
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                log('📈 Estadísticas del Newsletter:', 'success');
+                log(`👥 Total suscriptores: ${data.stats?.totalSubscribers || 'N/A'}`, 'success');
+                log(`🔥 Activos: ${data.stats?.activeSubscribers || 'N/A'}`, 'success');
+                log(`📅 Hoy: ${data.stats?.database?.today || 'N/A'}`, 'success');
+                
+                if (data.stats?.recentSubscribers?.length > 0) {
+                    log('👥 Suscriptores recientes:', 'success');
+                    data.stats.recentSubscribers.forEach(sub => {
+                        log(`  📧 ${sub.email} - ${new Date(sub.subscribedAt).toLocaleString()}`, 'success');
+                    });
+                }
+                
+                if (data.stats?.convertKit) {
+                    log('🔗 ConvertKit:', 'success');
+                    log(`  📊 Total: ${data.stats.convertKit.subscribers?.total || 'N/A'}`, 'success');
+                }
+                
+            } catch (error) {
+                log(`💥 Error obteniendo estadísticas: ${error.message}`, 'error');
+            }
+        }
+
+        // Cargar estadísticas al inicio
+        window.onload = () => {
+            log('🚀 Sistema de Newsletter cargado');
+            getStats();
+        };
+    </script>
+</body>
+</html>

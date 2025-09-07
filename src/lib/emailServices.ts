@@ -186,16 +186,14 @@ export class BrevoService implements EmailService {
 // Factory para crear el servicio de email configurado
 export function createEmailService(): EmailService | null {
   // Verificar qué servicio está configurado (orden de prioridad)
+  // ConvertKit para suscripciones, otros servicios como backup
+  
   if (process.env.CONVERTKIT_API_KEY && process.env.CONVERTKIT_FORM_ID) {
     return new ConvertKitService(process.env.CONVERTKIT_API_KEY, process.env.CONVERTKIT_FORM_ID);
   }
   
   if (process.env.BREVO_API_KEY) {
     return new BrevoService(process.env.BREVO_API_KEY);
-  }
-  
-  if (process.env.RESEND_API_KEY) {
-    return new ResendService(process.env.RESEND_API_KEY);
   }
   
   if (process.env.MAILCHIMP_API_KEY && process.env.MAILCHIMP_LIST_ID) {
@@ -205,11 +203,105 @@ export function createEmailService(): EmailService | null {
   return null; // No hay servicio configurado
 }
 
-// Función para enviar email de bienvenida (opcional)
-export async function sendWelcomeEmail(email: string, service: EmailService) {
-  // Esta función se puede expandir para enviar emails de bienvenida personalizados
-  console.log(`Welcome email would be sent to ${email} via ${service.name}`);
+// Interfaces para envío de emails
+export interface EmailSendOptions {
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
+}
+
+export interface EmailSendResult {
+  success: boolean;
+  data?: unknown;
+  error?: string;
+}
+
+export interface EmailSender {
+  sendEmail: (options: EmailSendOptions) => Promise<EmailSendResult>;
+}
+
+// Factory específico para envío de emails (Resend)
+export function createEmailSender(): EmailSender | null {
+  if (process.env.RESEND_API_KEY) {
+    return {
+      async sendEmail(options: EmailSendOptions): Promise<EmailSendResult> {
+        try {
+          const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: options.from || process.env.NEWSLETTER_FROM_EMAIL || 'onboarding@resend.dev',
+              to: options.to,
+              subject: options.subject,
+              html: options.html,
+            }),
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            return { success: true, data };
+          } else {
+            return { success: false, error: data.message || 'Failed to send email' };
+          }
+        } catch (error) {
+          return { success: false, error: `Email send error: ${error instanceof Error ? error.message : 'Unknown error'}` };
+        }
+      }
+    };
+  }
   
-  // TODO: Implementar envío de email de bienvenida
-  // Puedes usar servicios como Resend, SendGrid, etc.
+  return null;
+}
+
+// Función para enviar email de bienvenida usando Resend
+export async function sendWelcomeEmail(email: string, service: EmailService) {
+  const emailSender = createEmailSender();
+  
+  if (emailSender) {
+    try {
+      console.log(`Sending welcome email to ${email} via Resend`);
+      
+      const result = await emailSender.sendEmail({
+        to: email,
+        subject: '¡Bienvenido a TechFinance Blog! 🚀',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #0070f3;">¡Bienvenido a TechFinance Blog! 🚀</h1>
+            <p>Gracias por suscribirte a nuestro newsletter.</p>
+            <p>Recibirás las mejores noticias sobre:</p>
+            <ul>
+              <li>💻 Tecnología e Innovación</li>
+              <li>💰 Finanzas y Mercados</li>
+              <li>🚀 Startups y Emprendimiento</li>
+              <li>📈 Análisis de Tendencias</li>
+            </ul>
+            <p>¡Mantente al día con las últimas tendencias!</p>
+            <hr>
+            <p><small>Te has suscrito con: ${email}</small></p>
+            <p><small>También estás registrado en: ${service.name}</small></p>
+          </div>
+        `,
+        from: process.env.NEWSLETTER_FROM_EMAIL || 'noreply@techfinance.com'
+      });
+      
+      if (result.success) {
+        console.log(`Welcome email sent successfully to ${email}`);
+      } else {
+        console.error(`Failed to send welcome email to ${email}:`, result.error);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error(`Error sending welcome email to ${email}:`, error);
+      return { success: false, error: `Welcome email error: ${error instanceof Error ? error.message : 'Unknown error'}` };
+    }
+  } else {
+    console.log(`No email sender configured - welcome email for ${email} skipped`);
+    return { success: false, error: 'No email sender service available' };
+  }
 }
