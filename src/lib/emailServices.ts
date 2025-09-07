@@ -60,27 +60,44 @@ export class ConvertKitService implements EmailService {
 
   async subscribe(email: string, options: { firstName?: string, tags?: string[] } = {}) {
     try {
-      const response = await fetch(`https://api.convertkit.com/v3/forms/${this.formId}/subscribe`, {
+      const url = `https://api.convertkit.com/v3/forms/${this.formId}/subscribe`;
+      const payload = {
+        api_key: this.apiKey,
+        email: email,
+        first_name: options.firstName || '',
+        tags: options.tags || ['tech-finance-blog']
+      };
+
+      console.log('ConvertKit API call:', {
+        url,
+        formId: this.formId,
+        email,
+        apiKeyPrefix: this.apiKey.substring(0, 10) + '...'
+      });
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          api_key: this.apiKey,
-          email: email,
-          first_name: options.firstName || '',
-          tags: options.tags || ['tech-finance-blog']
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
+      
+      console.log('ConvertKit response:', {
+        status: response.status,
+        ok: response.ok,
+        data
+      });
 
       if (response.ok) {
         return { success: true, message: 'Successfully subscribed to ConvertKit' };
       } else {
-        return { success: false, error: data.message || 'ConvertKit subscription failed' };
+        return { success: false, error: data.message || data.error || 'ConvertKit subscription failed' };
       }
     } catch (error) {
+      console.error('ConvertKit API error:', error);
       return { success: false, error: `ConvertKit error: ${error instanceof Error ? error.message : 'Unknown error'}` };
     }
   }

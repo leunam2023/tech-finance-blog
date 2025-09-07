@@ -112,8 +112,16 @@ export async function POST(request: NextRequest) {
     const emailService = createEmailService();
     let emailServiceResult = null;
     
+    console.log('Checking email service configuration:', {
+      hasConvertKitKey: !!process.env.CONVERTKIT_API_KEY,
+      hasFormId: !!process.env.CONVERTKIT_FORM_ID,
+      emailServiceCreated: !!emailService,
+      serviceName: emailService?.name || 'none'
+    });
+    
     if (emailService) {
       try {
+        console.log(`Attempting to subscribe ${normalizedEmail} to ${emailService.name}`);
         emailServiceResult = await emailService.subscribe(normalizedEmail, {
           tags: ['tech-finance-blog'],
           mergeFields: {
