@@ -158,7 +158,7 @@ export function generateArticleStructuredData(post: {
         publishedAt: post.publishedAt,
         modifiedAt: post.modifiedAt,
         author: post.author,
-        url: `https://tech-finance-blog.vercel.app/blog/${post.id}`,
+        url: `https://tech-finance-blog.vercel.app/`,
         category: post.category,
         keywords: post.tags,
         content: post.content

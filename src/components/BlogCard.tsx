@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -95,11 +94,9 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
 
                 {/* Contenido */}
                 <div className="p-6">
-                    <Link href={`/blog/${post.id}`}>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
-                            {post.title}
-                        </h2>
-                    </Link>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-3 line-clamp-2">
+                        {post.title}
+                    </h2>
 
                     <p className="text-gray-600 mb-4">
                         {truncateText(post.description, 120)}
@@ -184,11 +181,9 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
 
             {/* Contenido */}
             <div className="p-4">
-                <Link href={`/blog/${post.id}`}>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
-                        {post.title}
-                    </h3>
-                </Link>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                    {post.title}
+                </h3>
 
                 <p className="text-gray-600 text-sm mb-3">
                     {truncateText(post.description, 80)}
