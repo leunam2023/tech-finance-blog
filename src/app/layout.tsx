@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import StructuredData from "@/components/StructuredData";
 import { generateHomeMetadata } from "@/lib/seo";
 import Script from 'next/script';
 
@@ -23,6 +24,26 @@ export default function RootLayout({
 }>) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
+  // Datos estructurados para el sitio web
+  const websiteData = {
+    name: "TechFinance Blog",
+    url: "https://tech-finance-blog.vercel.app",
+    description: "Blog especializado en tecnología y finanzas con noticias, análisis y consejos para profesionales y entusiastas.",
+    publisher: "TechFinance Blog",
+    language: "es"
+  };
+
+  const organizationData = {
+    name: "TechFinance Blog",
+    url: "https://tech-finance-blog.vercel.app",
+    description: "Plataforma digital especializada en contenido de tecnología y finanzas",
+    logo: "https://tech-finance-blog.vercel.app/logo.png",
+    sameAs: [
+      "https://twitter.com/techfinanceblog",
+      "https://linkedin.com/company/techfinanceblog"
+    ]
+  };
+
   return (
     <html lang="es" className={inter.className}>
       <head>
@@ -36,6 +57,10 @@ export default function RootLayout({
         ></script>
       </head>
       <body className="antialiased bg-gray-50 min-h-screen flex flex-col">
+        {/* Datos estructurados del sitio web */}
+        <StructuredData type="website" data={websiteData} />
+        <StructuredData type="organization" data={organizationData} />
+
         <Header />
         <main className="flex-1">
           {children}

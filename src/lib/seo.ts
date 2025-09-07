@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { SEOMetadata } from '@/types/blog';
 
 const SITE_NAME = 'TechFinance Blog';
-const SITE_DESCRIPTION = 'Tu fuente de información sobre tecnología, finanzas y criptomonedas. Noticias actualizadas, análisis y oportunidades de inversión.';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const SITE_DESCRIPTION = '🚀 Noticias de tecnología, finanzas y criptomonedas actualizadas diariamente. Análisis expert, guías de inversión y las mejores oportunidades crypto 2025.';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://tech-finance-blog.vercel.app';
 
 export function generateMetadata(seo: SEOMetadata): Metadata {
   return {
@@ -84,23 +84,44 @@ export function generateBlogPostMetadata(
 
 export function generateHomeMetadata(): Metadata {
   return generateMetadata({
-    title: 'Inicio',
-    description: SITE_DESCRIPTION,
-    keywords: ['tecnología', 'finanzas', 'criptomonedas', 'blockchain', 'inversión', 'startup', 'noticias', 'análisis'],
+    title: 'TechFinance Blog - Noticias de Tecnología, Finanzas y Criptomonedas 2025',
+    description: '🚀 Las mejores noticias de tecnología, finanzas y crypto actualizadas diariamente. Análisis expert, guías de inversión Bitcoin y Ethereum, tendencias tech.',
+    keywords: [
+      'noticias tecnología',
+      'finanzas 2025', 
+      'criptomonedas',
+      'bitcoin precio',
+      'ethereum',
+      'trading crypto',
+      'inversión blockchain',
+      'startup news',
+      'inteligencia artificial',
+      'mercados financieros',
+      'análisis crypto',
+      'tendencias tech'
+    ],
   });
 }
 
 export function generateCategoryMetadata(category: string): Metadata {
   const descriptions = {
-    technology: 'Las últimas noticias y tendencias en tecnología, IA, software y startups.',
-    finance: 'Análisis financiero, criptomonedas, inversiones y mercados.',
-    general: 'Noticias generales de negocios y emprendimiento.',
+    technology: '📱 Últimas noticias de tecnología 2025: IA, startups, software y tendencias tech. Análisis expert y novedades que cambiarán el mundo.',
+    finance: '💰 Noticias financieras, análisis de mercados, criptomonedas y estrategias de inversión. Trading Bitcoin, Ethereum y mejores crypto 2025.',
+    general: '🌍 Noticias generales de negocios, emprendimiento y economia global. Tendencias que impactan mercados y oportunidades de inversión.',
+    trending: '🔥 Tendencias virales en tecnología y finanzas. Las noticias más populares de crypto, startups y mercados actualizadas en tiempo real.'
+  };
+
+  const keywords = {
+    technology: ['tecnología', 'inteligencia artificial', 'startups', 'software', 'innovación', 'apps', 'desarrollo', 'programación', 'tech news'],
+    finance: ['finanzas', 'criptomonedas', 'bitcoin', 'ethereum', 'trading', 'inversión', 'mercados', 'bolsa', 'crypto'],
+    general: ['noticias', 'negocios', 'emprendimiento', 'economia', 'mercados', 'empresas', 'startups', 'actualidad'],
+    trending: ['tendencias', 'viral', 'popular', 'trending', 'novedades', 'últimas noticias', 'actualidad', 'tiempo real']
   };
 
   return generateMetadata({
-    title: category.charAt(0).toUpperCase() + category.slice(1),
+    title: `${category.charAt(0).toUpperCase() + category.slice(1)} - Noticias y Análisis 2025`,
     description: descriptions[category as keyof typeof descriptions] || SITE_DESCRIPTION,
-    keywords: [category, 'noticias', 'tecnología', 'finanzas'],
+    keywords: keywords[category as keyof typeof keywords] || ['noticias', 'tecnología', 'finanzas'],
   });
 }
 

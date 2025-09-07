@@ -4,13 +4,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, User, Tag, Share2, Bookmark } from 'lucide-react';
+import { Calendar, Clock, User, Tag, Bookmark } from 'lucide-react';
 
 import { HorizontalAd, NativeAd, SidebarAd } from '@/components/AdBanner';
 import { AffiliateSidebar } from '@/components/AffiliateCard';
 import BlogCard from '@/components/BlogCard';
+import StructuredData, { generateArticleStructuredData } from '@/components/StructuredData';
+import SocialShare, { QuickShare } from '@/components/SocialShare';
 import { getArticleById, getRelatedArticles, getMixedNews } from '@/lib/newsApi';
-import { generateBlogPostMetadata, generateArticleStructuredData } from '@/lib/seo';
+import { generateBlogPostMetadata } from '@/lib/seo';
 import { BlogPost } from '@/types/blog';
 
 interface BlogPostPageProps {
@@ -169,21 +171,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             }
         };
 
-        const structuredData = generateArticleStructuredData(
-            post.title,
-            post.description,
-            post.imageUrl,
-            post.publishedAt,
-            post.author
-        );
+        // Generar datos estructurados para el artículo
+        const articleData = generateArticleStructuredData({
+            id: post.id,
+            title: post.title,
+            description: post.description,
+            imageUrl: post.imageUrl,
+            publishedAt: post.publishedAt,
+            modifiedAt: post.publishedAt,
+            author: post.author,
+            category: post.category,
+            tags: post.tags,
+            content: post.content
+        });
 
         return (
             <div className="min-h-screen bg-gray-50">
-                {/* JSON-LD para datos estructurados */}
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-                />
+                {/* Datos estructurados JSON-LD */}
+                <StructuredData type="article" data={articleData} />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -331,19 +336,28 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                     )}
                                 </div>
                             </div>                        {/* Botones de acción */}
-                            <div className="flex items-center justify-between mb-8 p-4 bg-gray-50 rounded-lg">
-                                <div className="flex items-center space-x-4">
-                                    <button className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors duration-200">
-                                        <Share2 className="w-5 h-5" />
-                                        <span>Compartir</span>
-                                    </button>
-                                    <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200">
-                                        <Bookmark className="w-5 h-5" />
-                                        <span>Guardar</span>
-                                    </button>
+                            {/* Botones de acción y compartir */}
+                            <div className="mb-8 space-y-4">
+                                {/* Botones de acción principales */}
+                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <QuickShare
+                                        url={`https://tech-finance-blog.vercel.app/blog/${post.id}`}
+                                        title={post.title}
+                                    />
+                                    <div className="flex items-center space-x-4">
+                                        <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                                            <Bookmark className="w-5 h-5" />
+                                            <span>Guardar</span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="text-sm text-gray-500">
-                                    Tiempo de lectura: {post.readTime} minutos
+
+                                {/* Tiempo de lectura */}
+                                <div className="text-center">
+                                    <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg inline-block shadow">
+                                        <Clock className="w-4 h-4 inline mr-2" />
+                                        Tiempo de lectura: {post.readTime} minutos
+                                    </div>
                                 </div>
                             </div>
 
@@ -496,6 +510,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Componente de compartir social */}
+                                <SocialShare
+                                    url={`https://tech-finance-blog.vercel.app/blog/${post.id}`}
+                                    title={post.title}
+                                    description={post.description}
+                                    hashtags={post.category ? [post.category, 'blog', 'tecnologia', 'finanzas'] : ['blog']}
+                                />
 
                                 <SidebarAd />
                                 <AffiliateSidebar />
