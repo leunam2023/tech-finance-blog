@@ -335,10 +335,21 @@ export async function fetchNews(category: string, pageSize: number = 12): Promis
 
 // Función para generar un ID único basado en la URL
 function generateId(url: string): string {
-  // Crear un hash más único usando timestamp y URL
-  const timestamp = Date.now().toString(36);
-  const urlHash = Buffer.from(url).toString('base64').replace(/[^a-zA-Z0-9]/g, '');
-  return `${urlHash.substring(0, 8)}_${timestamp}_${Math.random().toString(36).substring(2, 6)}`;
+  // Crear un hash consistente y URL-safe basado en la URL
+  const encoder = new TextEncoder();
+  const data = encoder.encode(url);
+  
+  // Usar un hash simple pero consistente
+  let hash = 0;
+  for (let i = 0; i < data.length; i++) {
+    const char = data[i];
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Convertir a string positivo y agregar prefijo para evitar IDs numéricos
+  const positiveHash = Math.abs(hash).toString(36);
+  return `article_${positiveHash}_${url.split('/').pop()?.substring(0, 8) || 'news'}`;
 }
 
 // Función para extraer tags relevantes del título y descripción

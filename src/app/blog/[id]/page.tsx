@@ -9,8 +9,9 @@ import { Calendar, Clock, User, ExternalLink, Tag, Share2, Bookmark } from 'luci
 import { HorizontalAd, NativeAd, SidebarAd } from '@/components/AdBanner';
 import { AffiliateSidebar } from '@/components/AffiliateCard';
 import BlogCard from '@/components/BlogCard';
-import { getArticleById, getRelatedArticles } from '@/lib/newsApi';
+import { getArticleById, getRelatedArticles, getMixedNews } from '@/lib/newsApi';
 import { generateBlogPostMetadata, generateArticleStructuredData } from '@/lib/seo';
+import { BlogPost } from '@/types/blog';
 
 interface BlogPostPageProps {
     params: Promise<{
@@ -20,7 +21,65 @@ interface BlogPostPageProps {
 
 // Esta función busca el post por ID usando la nueva función optimizada
 async function getPostById(id: string) {
-    return await getArticleById(id);
+    try {
+        // Primero intentar con la función optimizada
+        const post = await getArticleById(id);
+        if (post) {
+            return post;
+        }
+
+        // Si no se encuentra, buscar en todas las noticias (fallback)
+        const allPosts: BlogPost[] = await getMixedNews(100);
+        const foundPost = allPosts.find((p: BlogPost) => p.id === id);
+
+        if (foundPost) {
+            return foundPost;
+        }
+
+        // Último fallback: buscar por URL si el ID parece ser una URL codificada
+        if (id.includes('_')) {
+            const decodedUrl = decodeArticleId(id);
+            if (decodedUrl) {
+                const postByUrl = allPosts.find((p: BlogPost) => p.sourceUrl === decodedUrl);
+                if (postByUrl) {
+                    return postByUrl;
+                }
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error finding post by ID:', error);
+        return null;
+    }
+}
+
+// Función para intentar decodificar ID que pudiera ser una URL
+function decodeArticleId(id: string): string | null {
+    try {
+        // Intentar varios métodos de decodificación
+        if (id.startsWith('article_')) {
+            // Si es nuestro formato nuevo, extraer info
+            return null;
+        }
+
+        // Si parece base64, intentar decodificar (método simplificado)
+        if (id.match(/^[A-Za-z0-9+/=_-]+$/)) {
+            try {
+                const cleanId = id.replace(/_/g, '/').replace(/-/g, '+');
+                const decoded = atob(cleanId);
+                if (decoded.startsWith('http')) {
+                    return decoded;
+                }
+            } catch {
+                // Si falla la decodificación, continuar
+            }
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
@@ -177,7 +236,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                         {/* Contenido del artículo */}
                         <div className="prose prose-lg max-w-none mb-8">
                             <div className="text-gray-700 leading-relaxed space-y-6">
-                                {post.content.split('\n').map((paragraph, index) => {
+                                {post.content.split('\n').map((paragraph: string, index: number) => {
                                     if (!paragraph.trim()) return null;
 
                                     // Detectar headers markdown
@@ -214,10 +273,32 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                         </p>
                                     );
                                 })}
-                            </div>
-                        </div>
 
-                        {/* Botones de acción */}
+                                {/* Aviso sobre contenido limitado de NewsAPI */}
+                                {post.content.length < 500 && (
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 my-8">
+                                        <div className="flex items-start">
+                                            <div className="flex-shrink-0">
+                                                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div className="ml-3">
+                                                <h3 className="text-sm font-medium text-yellow-800">
+                                                    Vista previa del artículo
+                                                </h3>
+                                                <div className="mt-2 text-sm text-yellow-700">
+                                                    <p>
+                                                        Este es un resumen del artículo completo. Para leer todo el contenido,
+                                                        haz clic en &ldquo;Ver artículo completo&rdquo; abajo.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>                        {/* Botones de acción */}
                         <div className="flex items-center justify-between mb-8 p-4 bg-gray-50 rounded-lg">
                             <div className="flex items-center space-x-4">
                                 <button className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors duration-200">
@@ -242,7 +323,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                             <div className="mb-8">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Etiquetas</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {post.tags.map((tag, index) => (
+                                    {post.tags.map((tag: string, index: number) => (
                                         <span
                                             key={index}
                                             className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 transition-colors duration-200"
@@ -255,23 +336,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                             </div>
                         )}
 
-                        {/* Enlace a fuente original */}
+                        {/* Enlace a fuente original - mejorado */}
                         {post.sourceUrl && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
                                 <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="font-semibold text-blue-900">Fuente original</h3>
-                                        <p className="text-blue-700 text-sm">
-                                            Lee el artículo completo en {post.source}
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-blue-900 text-lg mb-2">
+                                            📰 Lee el artículo completo
+                                        </h3>
+                                        <p className="text-blue-700 mb-3">
+                                            Continúa leyendo en <span className="font-semibold">{post.source}</span> para
+                                            obtener todos los detalles, análisis completo y información adicional.
                                         </p>
+                                        <div className="flex items-center text-sm text-blue-600">
+                                            <span className="mr-2">✨</span>
+                                            <span>Artículo original • Contenido completo • Fuente verificada</span>
+                                        </div>
                                     </div>
                                     <a
                                         href={post.sourceUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center font-semibold ml-6"
                                     >
-                                        Ver original
+                                        Ver artículo completo
                                         <ExternalLink className="w-4 h-4 ml-2" />
                                     </a>
                                 </div>
@@ -352,8 +440,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                     <h3 className="text-lg font-bold text-gray-900 mb-4">📋 Contenido</h3>
                                     <div className="space-y-2">
                                         {post.content.split('\n')
-                                            .filter(line => line.startsWith('##'))
-                                            .map((header, index) => (
+                                            .filter((line: string) => line.startsWith('##'))
+                                            .map((header: string, index: number) => (
                                                 <div key={index} className="text-sm">
                                                     <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
                                                         {header.replace(/^##\s*/, '').replace(/^###\s*/, '  • ')}
