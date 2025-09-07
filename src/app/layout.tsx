@@ -24,6 +24,10 @@ export default function RootLayout({
   const adsenseId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID;
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
+  // Debug logging - REMOVER EN PRODUCCIÓN
+  console.log('AdSense ID:', adsenseId);
+  console.log('GA ID:', gaId);
+
   return (
     <html lang="es" className={inter.className}>
       <head>
@@ -39,14 +43,14 @@ export default function RootLayout({
         <Footer />
 
         {/* Google AdSense - Solo cargar si hay ID configurado */}
-        {adsenseId && adsenseId !== 'ca-pub-xxxxxxxxxxxxxxxx' && (
+        {(adsenseId && adsenseId !== 'ca-pub-xxxxxxxxxxxxxxxx') || process.env.NODE_ENV === 'production' ? (
           <Script
             async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId || 'ca-pub-4107404773575160'}`}
             crossOrigin="anonymous"
             strategy="afterInteractive"
           />
-        )}
+        ) : null}
 
         {/* Google Analytics - Solo cargar si hay ID configurado */}
         {gaId && gaId !== 'G-XXXXXXXXXX' && (
