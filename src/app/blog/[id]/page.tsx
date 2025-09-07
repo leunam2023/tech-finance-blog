@@ -353,15 +353,41 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                             <span>Artículo original • Contenido completo • Fuente verificada</span>
                                         </div>
                                     </div>
-                                    <a
-                                        href={post.sourceUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center font-semibold ml-6"
-                                    >
-                                        Ver artículo completo
-                                        <ExternalLink className="w-4 h-4 ml-2" />
-                                    </a>
+                                    <div className="flex flex-col gap-2 ml-6">
+                                        <a
+                                            href={post.sourceUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors duration-200 flex items-center font-semibold"
+                                            onClick={() => {
+                                                // Verificar si el enlace funciona
+                                                console.log('Intentando abrir:', post.sourceUrl);
+                                            }}
+                                        >
+                                            Ver artículo completo
+                                            <ExternalLink className="w-4 h-4 ml-2" />
+                                        </a>
+                                        {/* Enlace alternativo para buscar en Google */}
+                                        <a
+                                            href={`https://www.google.com/search?q="${encodeURIComponent(post.title)}" ${post.source}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center text-sm"
+                                        >
+                                            Buscar en Google
+                                            <svg className="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                                {/* Aviso sobre enlaces */}
+                                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                                    <p className="text-xs text-blue-800">
+                                        💡 <strong>Nota:</strong> Si el enlace principal no funciona, usa el botón de búsqueda
+                                        para encontrar el artículo en el sitio web de {post.source}. Los enlaces de noticias
+                                        pueden cambiar o expirar con el tiempo.
+                                    </p>
                                 </div>
                             </div>
                         )}
