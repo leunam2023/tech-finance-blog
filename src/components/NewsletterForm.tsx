@@ -6,9 +6,10 @@ import { Mail, CheckCircle, AlertCircle } from 'lucide-react';
 interface NewsletterProps {
     className?: string;
     compact?: boolean;
+    theme?: 'light' | 'dark';
 }
 
-export default function NewsletterForm({ className = '', compact = false }: NewsletterProps) {
+export default function NewsletterForm({ className = '', compact = false, theme = 'light' }: NewsletterProps) {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState('');
@@ -122,7 +123,8 @@ export default function NewsletterForm({ className = '', compact = false }: News
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Tu email"
                     disabled={status === 'loading'}
-                    className="flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none disabled:opacity-50 placeholder-gray-500"
+                    className={`flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none disabled:opacity-50 ${theme === 'dark' ? 'placeholder-gray-400' : 'placeholder-gray-500'
+                        }`}
                 />
                 <button
                     type="submit"

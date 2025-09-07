@@ -133,6 +133,69 @@ const demoTrendingArticles: NewsArticle[] = [
   }
 ];
 
+const demoGeneralArticles: NewsArticle[] = [
+  {
+    source: { id: 'bbc-news', name: 'BBC News' },
+    author: 'María González',
+    title: 'Cambio climático: nuevas políticas ambientales impactan la economía global',
+    description: 'Análisis de cómo las nuevas regulaciones ambientales están transformando las industrias mundiales.',
+    url: 'https://bbc.com/demo-general-1',
+    urlToImage: 'https://images.unsplash.com/photo-1569163139394-de4e4f43e4e3?w=800&h=400&fit=crop',
+    publishedAt: new Date().toISOString(),
+    content: 'Las nuevas políticas ambientales están redefiniendo el panorama económico mundial. Empresas de todos los sectores están adaptando sus operaciones para cumplir con regulaciones más estrictas sobre emisiones de carbono y sostenibilidad.'
+  },
+  {
+    source: { id: 'cnn', name: 'CNN' },
+    author: 'Roberto Silva',
+    title: 'Avances en medicina: nueva terapia génica promete curar enfermedades raras',
+    description: 'Investigadores desarrollan tratamiento revolucionario que podría cambiar la medicina moderna.',
+    url: 'https://cnn.com/demo-general-2',
+    urlToImage: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 1800000).toISOString(),
+    content: 'Un equipo internacional de investigadores ha desarrollado una nueva terapia génica que muestra resultados prometedores en el tratamiento de enfermedades genéticas raras. Los ensayos clínicos iniciales han demostrado una eficacia del 85% en la corrección de defectos genéticos.'
+  },
+  {
+    source: { id: 'reuters', name: 'Reuters' },
+    author: 'Ana Martínez',
+    title: 'Educación digital: universidades adoptan nuevas tecnologías post-pandemia',
+    description: 'El sector educativo abraza la transformación digital con plataformas innovadoras.',
+    url: 'https://reuters.com/demo-general-3',
+    urlToImage: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 3600000).toISOString(),
+    content: 'Las instituciones educativas continúan integrando tecnologías digitales avanzadas en sus currículos. Desde realidad virtual hasta inteligencia artificial, las universidades están redefiniendo la experiencia de aprendizaje del siglo XXI.'
+  },
+  {
+    source: { id: 'associated-press', name: 'Associated Press' },
+    author: 'Carlos Rodríguez',
+    title: 'Turismo espacial: primera misión comercial exitosa marca nuevo hito',
+    description: 'La industria del turismo espacial alcanza un nuevo nivel con vuelos comerciales regulares.',
+    url: 'https://ap.org/demo-general-4',
+    urlToImage: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 5400000).toISOString(),
+    content: 'La primera misión comercial de turismo espacial ha concluido exitosamente, marcando el inicio de una nueva era en los viajes espaciales. Los pasajeros civiles han experimentado la microgravedad y vistas espectaculares de la Tierra durante su estadía en órbita.'
+  },
+  {
+    source: { id: 'guardian', name: 'The Guardian' },
+    author: 'Elena López',
+    title: 'Energías renovables: parques solares flotantes revolucionan la industria',
+    description: 'Nueva tecnología de paneles solares en agua promete mayor eficiencia energética.',
+    url: 'https://guardian.com/demo-general-5',
+    urlToImage: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 7200000).toISOString(),
+    content: 'Los parques solares flotantes están emergiendo como una solución innovadora para la generación de energía limpia. Esta tecnología no solo ahorra espacio terrestre sino que también aumenta la eficiencia de los paneles debido al efecto de enfriamiento del agua.'
+  },
+  {
+    source: { id: 'washington-post', name: 'The Washington Post' },
+    author: 'Jorge Mendoza',
+    title: 'Alimentación sostenible: granjas verticales urbanas alimentan las ciudades',
+    description: 'La agricultura vertical se expande en centros urbanos para garantizar seguridad alimentaria.',
+    url: 'https://washingtonpost.com/demo-general-6',
+    urlToImage: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=800&h=400&fit=crop',
+    publishedAt: new Date(Date.now() - 9000000).toISOString(),
+    content: 'Las granjas verticales urbanas están transformando la forma en que producimos alimentos en las ciudades. Utilizando tecnología hidropónica y LED, estas instalaciones pueden producir cultivos durante todo el año con un 95% menos de agua que la agricultura tradicional.'
+  }
+];
+
 const demoBusinessArticles: NewsArticle[] = [
   {
     source: { id: 'business-insider', name: 'Business Insider' },
@@ -247,6 +310,36 @@ export async function getTrendingNews(page: number = 1, pageSize: number = 10): 
   }
 }
 
+export async function getGeneralNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
+  try {
+    // Si tenemos una API key válida, usar la API real
+    if (NEWS_API_KEY !== 'demo' && NEWS_API_KEY !== 'a52b8a8ca84d4f1484b5d8cd505394be') {
+      const response = await fetch(
+        `${NEWS_API_BASE_URL}/top-headlines?category=general&language=en&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`,
+        { next: { revalidate: 3600 } }
+      );
+      
+      if (response.ok) {
+        return await response.json();
+      }
+    }
+    
+    // Usar datos de demostración
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const articles = demoGeneralArticles.slice(startIndex, endIndex);
+    
+    return {
+      status: 'ok',
+      totalResults: demoGeneralArticles.length,
+      articles
+    };
+  } catch (error) {
+    console.error('Error fetching general news:', error);
+    return { status: 'error', totalResults: 0, articles: [] };
+  }
+}
+
 export async function getBusinessNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
   try {
     // Si tenemos una API key válida, usar la API real
@@ -316,6 +409,8 @@ export async function getNewsByCategory(category: string, page: number = 1, page
     case 'finance':
     case 'finanzas':
       return getFinanceNews(page, pageSize);
+    case 'general':
+      return getGeneralNews(page, pageSize);
     case 'business':
     case 'negocios':
       return getBusinessNews(page, pageSize);
@@ -513,16 +608,18 @@ export function convertNewsArticleToBlogPost(article: NewsArticle, category: 'te
 // Función para obtener artículos mezclados de todas las categorías
 export async function getMixedNews(pageSize: number = 20): Promise<BlogPost[]> {
   try {
-    const [techNews, financeNews, businessNews, trendingNews] = await Promise.all([
-      getTechnologyNews(1, Math.ceil(pageSize / 4)),
-      getFinanceNews(1, Math.ceil(pageSize / 4)),
-      getBusinessNews(1, Math.ceil(pageSize / 4)),
-      getTrendingNews(1, Math.ceil(pageSize / 4))
+    const [techNews, financeNews, generalNews, businessNews, trendingNews] = await Promise.all([
+      getTechnologyNews(1, Math.ceil(pageSize / 5)),
+      getFinanceNews(1, Math.ceil(pageSize / 5)),
+      getGeneralNews(1, Math.ceil(pageSize / 5)),
+      getBusinessNews(1, Math.ceil(pageSize / 5)),
+      getTrendingNews(1, Math.ceil(pageSize / 5))
     ]);
 
     const allPosts: BlogPost[] = [
       ...techNews.articles.map(article => convertNewsArticleToBlogPost(article, 'technology')),
       ...financeNews.articles.map(article => convertNewsArticleToBlogPost(article, 'finance')),
+      ...generalNews.articles.map(article => convertNewsArticleToBlogPost(article, 'general')),
       ...businessNews.articles.map(article => convertNewsArticleToBlogPost(article, 'general')),
       ...trendingNews.articles.map(article => convertNewsArticleToBlogPost(article, 'general'))
     ];
@@ -543,6 +640,7 @@ export async function getMixedNews(pageSize: number = 20): Promise<BlogPost[]> {
     const allPosts: BlogPost[] = [
       ...demoTechArticles.map(article => convertNewsArticleToBlogPost(article, 'technology')),
       ...demoFinanceArticles.map(article => convertNewsArticleToBlogPost(article, 'finance')),
+      ...demoGeneralArticles.map(article => convertNewsArticleToBlogPost(article, 'general')),
       ...demoBusinessArticles.map(article => convertNewsArticleToBlogPost(article, 'general')),
       ...demoTrendingArticles.map(article => convertNewsArticleToBlogPost(article, 'general'))
     ];

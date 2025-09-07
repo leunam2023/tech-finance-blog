@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import BlogCard from '@/components/BlogCard';
+import NewsletterForm from '@/components/NewsletterForm';
 import { getTrendingNews, convertNewsArticleToBlogPost } from '@/lib/newsApi';
 import { generateMetadata } from '@/lib/seo';
 import { COMPANY_INFO, pageConfigs } from '@/config/company';
@@ -72,16 +73,7 @@ export default async function TrendingPage() {
                         Suscríbete a nuestro newsletter y recibe las tendencias más importantes
                         directamente en tu inbox.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                        <input
-                            type="email"
-                            placeholder="tu@email.com"
-                            className="flex-1 px-4 py-3 rounded-lg bg-white/20 backdrop-blur-md border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        />
-                        <button className="px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                            Suscribirse
-                        </button>
-                    </div>
+                    <NewsletterForm compact={false} theme="dark" />
                 </div>
 
                 {/* News Grid */}
