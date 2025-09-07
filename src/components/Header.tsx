@@ -38,11 +38,12 @@ const Header = () => {
         if (query.length >= 2) {
             try {
                 const newSuggestions = await getSearchSuggestions(query);
-                setSuggestions(newSuggestions);
+                setSuggestions(newSuggestions || []);
                 setShowSuggestions(true);
             } catch (error) {
                 console.error('Error fetching suggestions:', error);
                 setSuggestions([]);
+                setShowSuggestions(false);
             }
         } else {
             setSuggestions([]);
@@ -130,7 +131,7 @@ const Header = () => {
                                             }
                                         }}
                                         placeholder="Buscar artículos..."
-                                        className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                        className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none placeholder-gray-600 text-gray-900"
                                     />
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                     <button
@@ -206,7 +207,7 @@ const Header = () => {
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder="Buscar artículos..."
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none placeholder-gray-600 text-gray-900"
                                     />
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                 </form>

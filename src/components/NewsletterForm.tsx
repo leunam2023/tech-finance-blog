@@ -74,7 +74,7 @@ export default function NewsletterForm({ className = '', compact = false }: News
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Tu email"
                         disabled={status === 'loading'}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 placeholder-gray-500 text-gray-900"
                     />
                     <button
                         type="submit"
@@ -87,8 +87,8 @@ export default function NewsletterForm({ className = '', compact = false }: News
 
                 {message && (
                     <div className={`mt-3 p-3 rounded-lg flex items-center text-sm ${status === 'success'
-                            ? 'bg-green-50 text-green-700 border border-green-200'
-                            : 'bg-red-50 text-red-700 border border-red-200'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : 'bg-red-50 text-red-700 border border-red-200'
                         }`}>
                         {status === 'success' ? (
                             <CheckCircle className="w-4 h-4 mr-2" />
@@ -122,7 +122,7 @@ export default function NewsletterForm({ className = '', compact = false }: News
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Tu email"
                     disabled={status === 'loading'}
-                    className="flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none disabled:opacity-50"
+                    className="flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none disabled:opacity-50 placeholder-gray-500"
                 />
                 <button
                     type="submit"
@@ -135,8 +135,8 @@ export default function NewsletterForm({ className = '', compact = false }: News
 
             {message && (
                 <div className={`mt-4 p-3 rounded-lg flex items-center justify-center text-sm ${status === 'success'
-                        ? 'bg-green-500 bg-opacity-20 border border-green-300'
-                        : 'bg-red-500 bg-opacity-20 border border-red-300'
+                    ? 'bg-green-500 bg-opacity-20 border border-green-300'
+                    : 'bg-red-500 bg-opacity-20 border border-red-300'
                     }`}>
                     {status === 'success' ? (
                         <CheckCircle className="w-4 h-4 mr-2" />

@@ -87,7 +87,7 @@ export default function SearchResults() {
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Buscar artículos sobre tecnología, finanzas, crypto..."
-                            className="w-full pl-12 pr-12 py-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full pl-12 pr-12 py-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-lg text-white placeholder-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                         {query && (
                             <button
