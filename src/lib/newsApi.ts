@@ -535,41 +535,70 @@ function extractKeyPoints(title: string, description: string): string[] {
 // Función para obtener un artículo específico por ID con contenido expandido
 export async function getArticleById(id: string): Promise<BlogPost | null> {
   try {
-    // Primero intentamos encontrarlo en las noticias mezcladas
-    const allPosts = await getMixedNews(100); // Obtenemos más posts para mejor probabilidad
-    const post = allPosts.find(p => p.id === id);
+    console.log('🔍 Buscando artículo con ID:', id);
     
-    if (post) {
-      // Expandir el contenido si es necesario
-      if (post.content.length < 500) {
-        // Buscar el artículo original en las fuentes de NewsAPI para expandir
-        const [techNews, financeNews, businessNews, trendingNews] = await Promise.all([
-          getTechnologyNews(1, 50),
-          getFinanceNews(1, 50),
-          getBusinessNews(1, 50),
-          getTrendingNews(1, 50)
-        ]);
+    // Obtener todos los artículos originales para regenerar IDs correctamente
+    const [techNews, financeNews, businessNews, trendingNews] = await Promise.all([
+      getTechnologyNews(1, 50),
+      getFinanceNews(1, 50),
+      getBusinessNews(1, 50),
+      getTrendingNews(1, 50)
+    ]);
 
-        const allArticles = [
-          ...techNews.articles,
-          ...financeNews.articles,
-          ...businessNews.articles,
-          ...trendingNews.articles
-        ];
+    const allArticles = [
+      ...techNews.articles,
+      ...financeNews.articles,
+      ...businessNews.articles,
+      ...trendingNews.articles
+    ];
 
-        const originalArticle = allArticles.find(article => generateId(article.url, article.title) === id);
-        if (originalArticle) {
-          post.content = expandArticleContent(originalArticle);
-          post.readTime = calculateReadTime(post.content);
-        }
-      }
+    console.log('📰 Total artículos disponibles:', allArticles.length);
+
+    // Buscar el artículo que coincida con el ID
+    const targetArticle = allArticles.find(article => {
+      const generatedId = generateId(article.url, article.title);
+      console.log(`🔗 Comparando: ${generatedId} === ${id} ?`, generatedId === id);
+      return generatedId === id;
+    });
+
+    if (targetArticle) {
+      console.log('✅ Artículo encontrado:', targetArticle.title);
       
-      return post;
+      // Determinar categoría basada en el contenido
+      let category: 'technology' | 'finance' | 'general' = 'general';
+      const content = (targetArticle.title + ' ' + targetArticle.description).toLowerCase();
+      
+      if (content.includes('bitcoin') || content.includes('crypto') || content.includes('finance') || 
+          content.includes('investment') || content.includes('trading') || content.includes('stock')) {
+        category = 'finance';
+      } else if (content.includes('tech') || content.includes('ai') || content.includes('software') || 
+                 content.includes('programming') || content.includes('robot') || content.includes('tesla')) {
+        category = 'technology';
+      }
+
+      // Convertir a BlogPost con contenido expandido
+      const blogPost = convertNewsArticleToBlogPost(targetArticle, category);
+      blogPost.content = expandArticleContent(targetArticle);
+      blogPost.readTime = calculateReadTime(blogPost.content);
+      
+      console.log('🎯 BlogPost creado exitosamente');
+      return blogPost;
+    }
+
+    console.log('❌ Artículo no encontrado para ID:', id);
+    
+    // Como fallback, intentar buscar en los datos convertidos por si acaso
+    const allPosts = await getMixedNews(100);
+    const fallbackPost = allPosts.find(p => p.id === id);
+    
+    if (fallbackPost) {
+      console.log('🔄 Encontrado en fallback:', fallbackPost.title);
+      return fallbackPost;
     }
 
     return null;
   } catch (error) {
-    console.error('Error fetching article by ID:', error);
+    console.error('❌ Error fetching article by ID:', error);
     return null;
   }
 }
