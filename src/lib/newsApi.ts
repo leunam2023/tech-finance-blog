@@ -428,8 +428,8 @@ export async function fetchNews(category: string, pageSize: number = 12): Promis
   return response.articles || [];
 }
 
-// Función para generar un ID único basado en la URL y título del artículo
-function generateId(url: string, title?: string): string {
+// Función para generar un ID único basado en la URL del artículo
+function generateId(url: string): string {
   // Crear un hash simple y consistente basado en la URL
   let hash = 0;
   const str = url;
@@ -561,7 +561,7 @@ export async function getArticleById(id: string): Promise<BlogPost | null> {
 
     // Buscar el artículo que coincida con el ID
     const targetArticle = allArticles.find(article => {
-      const generatedId = generateId(article.url, article.title);
+      const generatedId = generateId(article.url);
       console.log(`🔗 Comparando: ${generatedId} === ${id} ?`, generatedId === id);
       return generatedId === id;
     });
@@ -592,12 +592,36 @@ export async function getArticleById(id: string): Promise<BlogPost | null> {
 
     console.log('❌ Artículo no encontrado para ID:', id);
     
-    // Como fallback, intentar buscar en los datos convertidos por si acaso
+    // NUEVO: Búsqueda alternativa usando diferentes estrategias
+    console.log('🔄 Intentando estrategias alternativas de búsqueda...');
+    
+    // Estrategia 1: Buscar por hash parcial (primeros 6 caracteres del hash)
+    if (id.startsWith('news_')) {
+      const shortHash = id.replace('news_', '').substring(0, 6);
+      console.log('🔧 Buscando por hash parcial:', shortHash);
+      
+      const partialMatch = allArticles.find(article => {
+        const fullId = generateId(article.url);
+        return fullId.includes(shortHash);
+      });
+      
+      if (partialMatch) {
+        console.log('✅ Encontrado con hash parcial:', partialMatch.title);
+        const category = getArticleCategory(partialMatch);
+        const blogPost = convertNewsArticleToBlogPost(partialMatch, category);
+        blogPost.content = expandArticleContent(partialMatch);
+        blogPost.readTime = calculateReadTime(blogPost.content);
+        return blogPost;
+      }
+    }
+    
+    // Estrategia 2: Como ultimo recurso, usar getMixedNews
+    console.log('🔄 Fallback: buscando en getMixedNews...');
     const allPosts = await getMixedNews(100);
     const fallbackPost = allPosts.find(p => p.id === id);
     
     if (fallbackPost) {
-      console.log('🔄 Encontrado en fallback:', fallbackPost.title);
+      console.log('✅ Encontrado en fallback:', fallbackPost.title);
       return fallbackPost;
     }
 
@@ -606,6 +630,23 @@ export async function getArticleById(id: string): Promise<BlogPost | null> {
     console.error('❌ Error fetching article by ID:', error);
     return null;
   }
+}
+
+// Función auxiliar para determinar categoría automáticamente
+function getArticleCategory(article: NewsArticle): 'technology' | 'finance' | 'general' {
+  const content = (article.title + ' ' + article.description).toLowerCase();
+  
+  if (content.includes('bitcoin') || content.includes('crypto') || content.includes('finance') || 
+      content.includes('investment') || content.includes('trading') || content.includes('stock') ||
+      content.includes('fintech') || content.includes('blockchain')) {
+    return 'finance';
+  } else if (content.includes('tech') || content.includes('ai') || content.includes('software') || 
+             content.includes('programming') || content.includes('robot') || content.includes('tesla') ||
+             content.includes('computer') || content.includes('digital') || content.includes('innovation')) {
+    return 'technology';
+  }
+  
+  return 'general';
 }
 
 // Función para obtener artículos relacionados por categoría
@@ -624,7 +665,7 @@ export async function getRelatedArticles(postId: string, category: string, limit
 // Función para convertir un artículo de NewsAPI a nuestro formato BlogPost
 export function convertNewsArticleToBlogPost(article: NewsArticle, category: 'technology' | 'finance' | 'general'): BlogPost {
   return {
-    id: generateId(article.url, article.title),
+    id: generateId(article.url),
     title: article.title,
     description: article.description || '',
     content: article.content || article.description || '',

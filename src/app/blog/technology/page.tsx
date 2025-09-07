@@ -2,7 +2,6 @@ import BlogCard from '@/components/BlogCard';
 import { HorizontalAd, SidebarAd } from '@/components/AdBanner';
 import { AffiliateSidebar } from '@/components/AffiliateCard';
 import AnimatedSection from '@/components/AnimatedSection';
-import LazyImage from '@/components/LazyImage';
 import { getTechnologyNews, convertNewsArticleToBlogPost } from '@/lib/newsApi';
 import { generateCategoryMetadata } from '@/lib/seo';
 import { Smartphone, TrendingUp } from 'lucide-react';
