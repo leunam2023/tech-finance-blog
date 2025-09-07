@@ -1,5 +1,6 @@
 import BlogCard from '@/components/BlogCard';
 import { HorizontalAd, NativeAd } from '@/components/AdBanner';
+import AdSense, { BannerAd, InArticleAd } from '@/components/AdSense';
 import { AffiliateBanner, AffiliateSidebar } from '@/components/AffiliateCard';
 import NewsletterForm from '@/components/NewsletterForm';
 import { getMixedNews } from '@/lib/newsApi';
@@ -50,8 +51,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Anuncio banner horizontal */}
-      <HorizontalAd />
+      {/* Anuncio banner horizontal - AdSense */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <BannerAd className="mx-auto" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
