@@ -182,7 +182,10 @@ export async function GET(request: NextRequest) {
     if (action === 'test-convertkit') {
       // Prueba directa a ConvertKit API
       try {
-        const testEmail = 'test-' + Date.now() + '@ejemplo.com';
+        // Permitir email personalizado o usar uno de prueba
+        const customEmail = url.searchParams.get('email');
+        const testEmail = customEmail || 'test-' + Date.now() + '@ejemplo.com';
+        
         const response = await fetch(`https://api.convertkit.com/v3/forms/${process.env.CONVERTKIT_FORM_ID}/subscribe`, {
           method: 'POST',
           headers: {
@@ -191,7 +194,7 @@ export async function GET(request: NextRequest) {
           body: JSON.stringify({
             api_key: process.env.CONVERTKIT_API_KEY,
             email: testEmail,
-            tags: ['test-from-api']
+            tags: customEmail ? ['real-test'] : ['test-from-api']
           }),
         });
 
@@ -199,6 +202,7 @@ export async function GET(request: NextRequest) {
         
         return NextResponse.json({
           testEmail,
+          isCustomEmail: !!customEmail,
           success: response.ok,
           status: response.status,
           response: data,
