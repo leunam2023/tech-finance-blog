@@ -444,7 +444,12 @@ function generateId(url: string, title?: string): string {
   const positiveHash = Math.abs(hash).toString(36);
   
   // Crear un ID limpio sin caracteres especiales problemáticos
-  return `news_${positiveHash}`;
+  const finalId = `news_${positiveHash}`;
+  
+  // Debug logging para identificar problemas
+  console.log(`🔧 generateId DEBUG: URL="${url}" -> ID="${finalId}"`);
+  
+  return finalId;
 }
 
 // Función para extraer tags relevantes del título y descripción
