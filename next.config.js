@@ -22,6 +22,12 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
+                hostname: 'ichef.bbci.co.uk',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
                 hostname: '**.com',
                 port: '',
                 pathname: '/**',
@@ -47,6 +53,12 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: '**.co',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: '**.co.uk',
                 port: '',
                 pathname: '/**',
             }

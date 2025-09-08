@@ -1,11 +1,10 @@
 import BlogCard from '@/components/BlogCard';
-import { HorizontalAd, SidebarAd } from '@/components/AdBanner';
-import { AffiliateSidebar } from '@/components/AffiliateCard';
+import { HorizontalAd } from '@/components/AdBanner';
 import AnimatedSection from '@/components/AnimatedSection';
+import CategorySidebar from '@/components/CategorySidebar';
 import { getGeneralNews, convertNewsArticleToBlogPost } from '@/lib/newsApi';
 import { generateCategoryMetadata } from '@/lib/seo';
 import { Globe, TrendingUp } from 'lucide-react';
-import Link from 'next/link';
 
 export async function generateMetadata() {
     return generateCategoryMetadata('general');
@@ -82,65 +81,7 @@ export default async function GeneralPage() {
                     </div>
 
                     {/* Sidebar */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-20 space-y-8">
-                            <AnimatedSection animation="slideLeft" delay={200}>
-                                <SidebarAd />
-                            </AnimatedSection>
-
-                            <AnimatedSection animation="slideLeft" delay={300}>
-                                <AffiliateSidebar />
-                            </AnimatedSection>
-
-                            {/* Stats de categoría */}
-                            <AnimatedSection animation="slideLeft" delay={400}>
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-4">📊 Estadísticas</h3>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-600">Artículos publicados:</span>
-                                            <span className="font-semibold text-purple-600">{posts.length}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-600">Última actualización:</span>
-                                            <span className="font-semibold text-green-600">Hace minutos</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-600">Categoría:</span>
-                                            <span className="font-semibold text-pink-600">General</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </AnimatedSection>
-
-                            {/* Categorías relacionadas */}
-                            <AnimatedSection animation="slideLeft" delay={500}>
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-4">🔗 Explorar más</h3>
-                                    <div className="space-y-3">
-                                        <Link
-                                            href="/blog/technology"
-                                            className="block text-blue-600 hover:text-blue-800 transition-colors duration-200 p-2 rounded hover:bg-blue-50"
-                                        >
-                                            📱 Tecnología
-                                        </Link>
-                                        <Link
-                                            href="/blog/finance"
-                                            className="block text-green-600 hover:text-green-800 transition-colors duration-200 p-2 rounded hover:bg-green-50"
-                                        >
-                                            💰 Finanzas
-                                        </Link>
-                                        <Link
-                                            href="/"
-                                            className="block text-gray-600 hover:text-gray-800 transition-colors duration-200 p-2 rounded hover:bg-gray-50"
-                                        >
-                                            🏠 Inicio
-                                        </Link>
-                                    </div>
-                                </div>
-                            </AnimatedSection>
-                        </div>
-                    </div>
+                    <CategorySidebar />
                 </div>
             </div>
         </div>
