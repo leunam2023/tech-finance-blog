@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, User, Tag, Search, ArrowLeft } from 'lucide-react';
+import { Calendar, Clock, User, Tag, Search, ArrowLeft, Share2, Twitter, Facebook, Linkedin, Heart } from 'lucide-react';
 import { getMixedNews } from '@/lib/newsApi';
 import { BlogPost } from '@/types/blog';
 
@@ -27,6 +27,23 @@ async function getPostById(id: string): Promise<BlogPost | null> {
     } catch (error) {
         console.error('Error obteniendo post:', error);
         return null;
+    }
+}
+
+// Función para obtener artículos relacionados
+async function getRelatedPosts(currentPost: BlogPost): Promise<BlogPost[]> {
+    try {
+        const allPosts = await getMixedNews(100);
+
+        // Filtrar artículos relacionados (misma categoría, excluyendo el actual)
+        const relatedPosts = allPosts
+            .filter(post => post.id !== currentPost.id && post.category === currentPost.category)
+            .slice(0, 3); // Máximo 3 artículos relacionados
+
+        return relatedPosts;
+    } catch (error) {
+        console.error('Error obteniendo posts relacionados:', error);
+        return [];
     }
 }
 
@@ -68,6 +85,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         if (!post) {
             notFound();
         }
+
+        // Obtener artículos relacionados
+        const relatedPosts = await getRelatedPosts(post);
 
         const formattedDate = format(new Date(post.publishedAt), 'dd \'de\' MMMM \'de\' yyyy', { locale: es });
 
@@ -213,6 +233,73 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                 </div>
                             )}
 
+                            {/* Compartir en redes sociales */}
+                            <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                                    📱 Comparte esta noticia
+                                </h3>
+                                <div className="flex justify-center space-x-4">
+                                    <a
+                                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://tech-finance-blog.vercel.app/blog/${post.id}`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full transition-colors duration-200"
+                                        title="Compartir en Twitter"
+                                    >
+                                        <Twitter className="w-5 h-5" />
+                                    </a>
+                                    <a
+                                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://tech-finance-blog.vercel.app/blog/${post.id}`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-blue-700 hover:bg-blue-800 text-white p-3 rounded-full transition-colors duration-200"
+                                        title="Compartir en Facebook"
+                                    >
+                                        <Facebook className="w-5 h-5" />
+                                    </a>
+                                    <a
+                                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://tech-finance-blog.vercel.app/blog/${post.id}`)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200"
+                                        title="Compartir en LinkedIn"
+                                    >
+                                        <Linkedin className="w-5 h-5" />
+                                    </a>
+                                    <button
+                                        onClick={() => navigator.share?.({ title: post.title, url: `https://tech-finance-blog.vercel.app/blog/${post.id}` })}
+                                        className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-full transition-colors duration-200"
+                                        title="Compartir"
+                                    >
+                                        <Share2 className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Call to action para newsletter */}
+                            <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-8 text-center mb-8">
+                                <Heart className="w-12 h-12 mx-auto mb-4 text-yellow-300" />
+                                <h3 className="text-2xl font-bold mb-3">
+                                    ¿Te gustó este artículo?
+                                </h3>
+                                <p className="mb-6 text-lg opacity-90">
+                                    Mantente al día con las últimas noticias de tecnología y finanzas
+                                </p>
+                                <div className="flex flex-col sm:flex-row max-w-lg mx-auto gap-4">
+                                    <input
+                                        type="email"
+                                        placeholder="Tu email"
+                                        className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    />
+                                    <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-8 py-3 rounded-lg transition-colors duration-200">
+                                        Suscribirse
+                                    </button>
+                                </div>
+                                <p className="text-sm opacity-75 mt-3">
+                                    Únete a más de 10,000 lectores que reciben contenido exclusivo
+                                </p>
+                            </div>
+
                             {/* Botón para buscar más detalles en Google */}
                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
                                 <div className="text-center">
@@ -232,6 +319,60 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                         Buscar más detalles en la web
                                     </a>
                                 </div>
+                            </div>
+
+                            {/* Artículos relacionados */}
+                            {relatedPosts.length > 0 && (
+                                <div className="mt-12 pt-8 border-t border-gray-200">
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                                        📰 Artículos Relacionados
+                                    </h3>
+                                    <div className="grid gap-6 md:grid-cols-2">
+                                        {relatedPosts.map((relatedPost) => (
+                                            <div key={relatedPost.id} className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
+                                                <Link href={`/blog/${relatedPost.id}`}>
+                                                    {relatedPost.imageUrl && (
+                                                        <div className="relative h-40 overflow-hidden rounded-t-xl">
+                                                            <Image
+                                                                src={relatedPost.imageUrl}
+                                                                alt={relatedPost.title}
+                                                                fill
+                                                                className="object-cover hover:scale-105 transition-transform duration-300"
+                                                                sizes="(max-width: 768px) 100vw, 50vw"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div className="p-4">
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">
+                                                                {relatedPost.category}
+                                                            </span>
+                                                            <span className="text-sm text-gray-500">
+                                                                {new Date(relatedPost.publishedAt).toLocaleDateString('es-ES')}
+                                                            </span>
+                                                        </div>
+                                                        <h4 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
+                                                            {relatedPost.title}
+                                                        </h4>
+                                                        <p className="text-gray-600 text-sm line-clamp-2">
+                                                            {relatedPost.description}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Navegación de retorno */}
+                            <div className="mt-12 pt-8 border-t border-gray-200 text-center">
+                                <Link
+                                    href="/"
+                                    className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                                >
+                                    ← Volver al inicio
+                                </Link>
                             </div>
                         </div>
                     </article>
