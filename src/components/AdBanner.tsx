@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface AdBannerProps {
     adSlot: string;
@@ -21,9 +21,19 @@ const AdBanner = ({
     fullWidthResponsive = true,
     className = ''
 }: AdBannerProps) => {
+    const adRef = useRef<HTMLModElement>(null);
+    const hasLoaded = useRef(false);
+
     useEffect(() => {
+        // Evitar cargar múltiples veces el mismo anuncio
+        if (hasLoaded.current) return;
+
         try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            // Verificar si el elemento existe y no tiene anuncios ya cargados
+            if (adRef.current && !adRef.current.getAttribute('data-adsbygoogle-status')) {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                hasLoaded.current = true;
+            }
         } catch (err) {
             console.error('AdSense error:', err);
         }
@@ -32,6 +42,7 @@ const AdBanner = ({
     return (
         <div className={`ad-container ${className}`}>
             <ins
+                ref={adRef}
                 className="adsbygoogle block"
                 data-ad-client={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID || 'ca-pub-xxxxxxxxxxxxxxxx'}
                 data-ad-slot={adSlot}

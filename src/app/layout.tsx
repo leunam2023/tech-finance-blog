@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import StructuredData from "@/components/StructuredData";
 import { generateHomeMetadata } from "@/lib/seo";
 import Script from 'next/script';
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   ...generateHomeMetadata(),
@@ -45,7 +39,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="es" className={inter.className}>
+    <html lang="es" className="font-sans">
       <head>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

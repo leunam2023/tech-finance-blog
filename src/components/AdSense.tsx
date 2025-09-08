@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface AdSenseProps {
     adSlot: string;
@@ -23,10 +23,15 @@ export default function AdSense({
     style = { display: 'block' },
     className = ''
 }: AdSenseProps) {
+    const adRef = useRef<HTMLModElement>(null);
+    const isLoaded = useRef(false);
+
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && adRef.current && !isLoaded.current) {
             try {
+                // Solo cargar si no ha sido cargado antes
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
+                isLoaded.current = true;
             } catch (error) {
                 console.error('AdSense error:', error);
             }
@@ -48,6 +53,7 @@ export default function AdSense({
 
     return (
         <ins
+            ref={adRef}
             className={`adsbygoogle ${className}`}
             style={style}
             data-ad-client={process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID}

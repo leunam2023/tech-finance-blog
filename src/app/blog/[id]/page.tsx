@@ -4,9 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Calendar, Clock, User, Tag, Search, ArrowLeft, Share2, Twitter, Facebook, Linkedin, Heart } from 'lucide-react';
+import { Calendar, Clock, User, Tag, Search, ArrowLeft, Heart } from 'lucide-react';
 import { getMixedNews } from '@/lib/newsApi';
 import { BlogPost } from '@/types/blog';
+import ShareButtons from '@/components/ShareButtons';
 
 interface BlogPostPageProps {
     params: Promise<{
@@ -234,47 +235,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                             )}
 
                             {/* Compartir en redes sociales */}
-                            <div className="bg-gray-50 rounded-xl p-6 mb-8">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-                                    📱 Comparte esta noticia
-                                </h3>
-                                <div className="flex justify-center space-x-4">
-                                    <a
-                                        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://tech-finance-blog.vercel.app/blog/${post.id}`)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full transition-colors duration-200"
-                                        title="Compartir en Twitter"
-                                    >
-                                        <Twitter className="w-5 h-5" />
-                                    </a>
-                                    <a
-                                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://tech-finance-blog.vercel.app/blog/${post.id}`)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="bg-blue-700 hover:bg-blue-800 text-white p-3 rounded-full transition-colors duration-200"
-                                        title="Compartir en Facebook"
-                                    >
-                                        <Facebook className="w-5 h-5" />
-                                    </a>
-                                    <a
-                                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://tech-finance-blog.vercel.app/blog/${post.id}`)}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors duration-200"
-                                        title="Compartir en LinkedIn"
-                                    >
-                                        <Linkedin className="w-5 h-5" />
-                                    </a>
-                                    <button
-                                        onClick={() => navigator.share?.({ title: post.title, url: `https://tech-finance-blog.vercel.app/blog/${post.id}` })}
-                                        className="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-full transition-colors duration-200"
-                                        title="Compartir"
-                                    >
-                                        <Share2 className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
+                            <ShareButtons
+                                title={post.title}
+                                url={`https://tech-finance-blog.vercel.app/blog/${post.id}`}
+                            />
 
                             {/* Call to action para newsletter */}
                             <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-8 text-center mb-8">

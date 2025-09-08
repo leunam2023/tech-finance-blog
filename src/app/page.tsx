@@ -5,7 +5,7 @@ import { AffiliateBanner, AffiliateSidebar } from '@/components/AffiliateCard';
 import StarkTechnologiaBanner, { StarkTechnologiaSidebar } from '@/components/StarkTechnologiaBanner';
 import NewsletterForm from '@/components/NewsletterForm';
 import AnimatedSection from '@/components/AnimatedSection';
-import LazyImage from '@/components/LazyImage';
+import SafeImage from '@/components/SafeImage';
 import { getMixedNews } from '@/lib/newsApi';
 import { TrendingUp, Smartphone, DollarSign, Clock, Globe } from 'lucide-react';
 import Link from 'next/link';
@@ -137,7 +137,7 @@ export default async function HomePage() {
                         <div className="flex flex-col sm:flex-row bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
                           <div className="sm:w-1/3 h-48 sm:h-auto relative">
                             {post.imageUrl ? (
-                              <LazyImage
+                              <SafeImage
                                 src={post.imageUrl}
                                 alt={post.title}
                                 fill

@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, CSSProperties } from 'react';
+import { ReactNode, CSSProperties, useEffect, useState } from 'react';
 import { useInView } from '@/hooks/useInView';
 
 interface AnimatedSectionProps {
@@ -22,13 +22,27 @@ export default function AnimatedSection({
     threshold = 0.1,
     rootMargin = '0px 0px -50px 0px'
 }: AnimatedSectionProps) {
+    const [isMounted, setIsMounted] = useState(false);
     const { ref, isInView } = useInView<HTMLDivElement>({ threshold, rootMargin });
+
+    // Evitar hydration mismatch
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const getAnimationStyles = (): CSSProperties => {
         const baseStyles: CSSProperties = {
             transition: `all ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
             transitionDelay: `${delay}ms`,
         };
+
+        // Durante SSR o antes del mount, mostrar sin animación para evitar hydration mismatch
+        if (!isMounted) {
+            return {
+                opacity: 1,
+                transform: 'translateY(0) translateX(0) scale(1)',
+            };
+        }
 
         if (!isInView) {
             switch (animation) {
@@ -78,6 +92,7 @@ export default function AnimatedSection({
             ref={ref}
             className={className}
             style={getAnimationStyles()}
+            suppressHydrationWarning={true}
         >
             {children}
         </div>

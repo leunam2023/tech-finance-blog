@@ -1,7 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import Image from 'next/image';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import SafeImage from './SafeImage';
 import { Clock, User, Tag, ExternalLink } from 'lucide-react';
 import { BlogPost } from '@/types/blog';
 
@@ -23,11 +23,30 @@ const truncateText = (text: string, maxLength: number): string => {
         : truncated + '...';
 };
 
+// Función para formatear fecha de manera consistente entre servidor y cliente
+const formatDate = (dateString: string): string => {
+    try {
+        const date = new Date(dateString);
+        // Usar formato ISO simple para evitar problemas de timezone
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+
+        const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun',
+            'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+        return `${day.toString().padStart(2, '0')} ${monthNames[month - 1]} ${year}`;
+    } catch {
+        return 'Fecha no válida';
+    }
+};
+
 const BlogCard = ({ post, featured = false }: BlogCardProps) => {
     // Debug temporal
     console.log('BlogCard ID:', post.id, 'Title:', post.title.substring(0, 30));
 
-    const formattedDate = format(new Date(post.publishedAt), 'dd MMM yyyy', { locale: es });
+    // Usar la fecha formateada de manera consistente
+    const formattedDate = formatDate(post.publishedAt);
 
     const getCategoryColor = (category: string) => {
         switch (category) {
@@ -57,12 +76,19 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
                 {/* Imagen principal */}
                 <div className="relative h-64 md:h-80 overflow-hidden">
                     {post.imageUrl ? (
-                        <Image
+                        <SafeImage
                             src={post.imageUrl}
                             alt={post.title}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            fallbackElement={
+                                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <span className="text-white text-6xl font-bold">
+                                        {getCategoryName(post.category)[0]}
+                                    </span>
+                                </div>
+                            }
                         />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -86,9 +112,10 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
                                 href={post.sourceUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 p-2 rounded-full transition-all duration-200"
+                                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 p-2 rounded-full transition-all duration-200 z-10"
                                 aria-label="Ver artículo original"
                                 title="Ver artículo original"
+                                onClick={(e) => e.stopPropagation()}
                             >
                                 <ExternalLink className="w-4 h-4" />
                             </a>
@@ -144,17 +171,24 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
 
     // Versión normal (no destacada)
     return (
-        <Link href={`/blog/${post.id}`}>
-            <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 group cursor-pointer">
-                {/* Imagen */}
-                <div className="relative h-48 overflow-hidden">
+        <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 group">
+            {/* Imagen */}
+            <div className="relative h-48 overflow-hidden">
+                <Link href={`/blog/${post.id}`} className="block w-full h-full">
                     {post.imageUrl ? (
-                        <Image
+                        <SafeImage
                             src={post.imageUrl}
                             alt={post.title}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            fallbackElement={
+                                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <span className="text-white text-3xl font-bold">
+                                        {getCategoryName(post.category)[0]}
+                                    </span>
+                                </div>
+                            }
                         />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -163,67 +197,68 @@ const BlogCard = ({ post, featured = false }: BlogCardProps) => {
                             </span>
                         </div>
                     )}
+                </Link>
 
-                    <div className="absolute top-3 left-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getCategoryColor(post.category)}`}>
-                            {getCategoryName(post.category)}
-                        </span>
+                <div className="absolute top-3 left-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getCategoryColor(post.category)}`}>
+                        {getCategoryName(post.category)}
+                    </span>
+                </div>
+
+                {post.sourceUrl && (
+                    <div className="absolute top-3 right-3">
+                        <a
+                            href={post.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 p-1.5 rounded-full transition-all duration-200 z-10"
+                            aria-label="Ver artículo original"
+                            title="Ver artículo original"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <ExternalLink className="w-3 h-3" />
+                        </a>
                     </div>
+                )}
+            </div>
 
-                    {post.sourceUrl && (
-                        <div className="absolute top-3 right-3">
-                            <a
-                                href={post.sourceUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 p-1.5 rounded-full transition-all duration-200"
-                                aria-label="Ver artículo original"
-                                title="Ver artículo original"
+            {/* Contenido */}
+            <div className="p-4">
+                <Link href={`/blog/${post.id}`}>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors duration-200 cursor-pointer">
+                        {post.title}
+                    </h3>
+                </Link>
+
+                <p className="text-gray-600 text-sm mb-3">
+                    {truncateText(post.description, 80)}
+                </p>
+
+                {/* Meta información */}
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                    <div className="flex items-center space-x-2">
+                        <span>{post.author}</span>
+                        <span>•</span>
+                        <span>{post.readTime} min</span>
+                    </div>
+                    <span>{formattedDate}</span>
+                </div>
+
+                {/* Tags */}
+                {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                        {post.tags.slice(0, 2).map((tag, index) => (
+                            <span
+                                key={index}
+                                className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
                             >
-                                <ExternalLink className="w-3 h-3" />
-                            </a>
-                        </div>
-                    )}
-                </div>
-
-                {/* Contenido */}
-                <div className="p-4">
-                    <Link href={`/blog/${post.id}`}>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors duration-200 cursor-pointer">
-                            {post.title}
-                        </h3>
-                    </Link>
-
-                    <p className="text-gray-600 text-sm mb-3">
-                        {truncateText(post.description, 80)}
-                    </p>
-
-                    {/* Meta información */}
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                        <div className="flex items-center space-x-2">
-                            <span>{post.author}</span>
-                            <span>•</span>
-                            <span>{post.readTime} min</span>
-                        </div>
-                        <span>{formattedDate}</span>
+                                {tag}
+                            </span>
+                        ))}
                     </div>
-
-                    {/* Tags */}
-                    {post.tags && post.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                            {post.tags.slice(0, 2).map((tag, index) => (
-                                <span
-                                    key={index}
-                                    className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
-                                >
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </article>
-        </Link>
+                )}
+            </div>
+        </article>
     );
 };
 

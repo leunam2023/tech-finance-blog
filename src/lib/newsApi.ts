@@ -223,7 +223,7 @@ const demoBusinessArticles: NewsArticle[] = [
 export async function getTechnologyNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
   try {
     // Si tenemos una API key válida, usar la API real
-    if (NEWS_API_KEY !== 'demo' && NEWS_API_KEY !== 'a52b8a8ca84d4f1484b5d8cd505394be') {
+    if (NEWS_API_KEY !== 'demo') {
       const response = await fetch(
         `${NEWS_API_BASE_URL}/everything?q=technology OR programming OR software OR AI OR tech startup&language=en&sortBy=publishedAt&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`,
         { next: { revalidate: 3600 } } // Cache por 1 hora
@@ -253,7 +253,7 @@ export async function getTechnologyNews(page: number = 1, pageSize: number = 10)
 export async function getFinanceNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
   try {
     // Si tenemos una API key válida, usar la API real
-    if (NEWS_API_KEY !== 'demo' && NEWS_API_KEY !== 'a52b8a8ca84d4f1484b5d8cd505394be') {
+    if (NEWS_API_KEY !== 'demo') {
       const response = await fetch(
         `${NEWS_API_BASE_URL}/everything?q=finance OR cryptocurrency OR bitcoin OR stock market OR investment OR fintech&language=en&sortBy=publishedAt&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`,
         { next: { revalidate: 3600 } }
@@ -283,7 +283,7 @@ export async function getFinanceNews(page: number = 1, pageSize: number = 10): P
 export async function getTrendingNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
   try {
     // Si tenemos una API key válida, usar la API real para trending
-    if (NEWS_API_KEY !== 'demo' && NEWS_API_KEY !== 'a52b8a8ca84d4f1484b5d8cd505394be') {
+    if (NEWS_API_KEY !== 'demo') {
       const response = await fetch(
         `${NEWS_API_BASE_URL}/everything?q=trending OR viral OR popular OR breaking OR latest&language=en&sortBy=popularity&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`,
         { next: { revalidate: 1800 } } // Cache por 30 minutos (más frecuente para trending)
@@ -313,7 +313,7 @@ export async function getTrendingNews(page: number = 1, pageSize: number = 10): 
 export async function getGeneralNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
   try {
     // Si tenemos una API key válida, usar la API real
-    if (NEWS_API_KEY !== 'demo' && NEWS_API_KEY !== 'a52b8a8ca84d4f1484b5d8cd505394be') {
+    if (NEWS_API_KEY !== 'demo') {
       const response = await fetch(
         `${NEWS_API_BASE_URL}/top-headlines?category=general&language=en&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`,
         { next: { revalidate: 3600 } }
@@ -343,7 +343,7 @@ export async function getGeneralNews(page: number = 1, pageSize: number = 10): P
 export async function getBusinessNews(page: number = 1, pageSize: number = 10): Promise<NewsAPIResponse> {
   try {
     // Si tenemos una API key válida, usar la API real
-    if (NEWS_API_KEY !== 'demo' && NEWS_API_KEY !== 'a52b8a8ca84d4f1484b5d8cd505394be') {
+    if (NEWS_API_KEY !== 'demo') {
       const response = await fetch(
         `${NEWS_API_BASE_URL}/top-headlines?category=business&language=en&page=${page}&pageSize=${pageSize}&apiKey=${NEWS_API_KEY}`,
         { next: { revalidate: 3600 } }
