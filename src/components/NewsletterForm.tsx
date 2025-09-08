@@ -108,37 +108,46 @@ export default function NewsletterForm({ className = '', compact = false, theme 
     }
 
     return (
-        <div className={`bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-6 text-center ${className}`}>
-            <h3 className="text-xl font-bold mb-2">
-                📧 ¡No te pierdas nada!
-            </h3>
-            <p className="mb-4">
-                Suscríbete para recibir las mejores noticias de tecnología y finanzas.
-            </p>
+        <div className={`${theme === 'dark' ? '' : 'bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-6 text-center'} ${className}`}>
+            {theme !== 'dark' && (
+                <>
+                    <h3 className="text-xl font-bold mb-2">
+                        📧 ¡No te pierdas nada!
+                    </h3>
+                    <p className="mb-4">
+                        Suscríbete para recibir las mejores noticias de tecnología y finanzas.
+                    </p>
+                </>
+            )}
 
-            <form onSubmit={handleSubmit} className="flex max-w-md mx-auto">
+            <form onSubmit={handleSubmit} className={`flex ${theme === 'dark' ? 'flex-col sm:flex-row max-w-lg mx-auto gap-4' : 'max-w-md mx-auto'}`}>
                 <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Tu email"
                     disabled={status === 'loading'}
-                    className={`flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none disabled:opacity-50 ${theme === 'dark' ? 'placeholder-gray-400' : 'placeholder-gray-500'
-                        }`}
+                    className={`${theme === 'dark'
+                        ? 'flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50'
+                        : 'flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none disabled:opacity-50'
+                        } ${theme === 'dark' ? 'placeholder-gray-500' : 'placeholder-gray-500'}`}
                 />
                 <button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="bg-yellow-400 hover:bg-yellow-500 disabled:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-r-lg transition-colors duration-200"
+                    className={`${theme === 'dark'
+                        ? 'bg-yellow-400 hover:bg-yellow-500 disabled:bg-yellow-300 text-gray-900 font-semibold px-8 py-3 rounded-lg transition-colors duration-200'
+                        : 'bg-yellow-400 hover:bg-yellow-500 disabled:bg-yellow-300 text-gray-900 font-semibold px-6 py-2 rounded-r-lg transition-colors duration-200'
+                        }`}
                 >
-                    {status === 'loading' ? '...' : 'Suscribirse'}
+                    {status === 'loading' ? (theme === 'dark' ? 'Suscribiendo...' : '...') : 'Suscribirse'}
                 </button>
             </form>
 
             {message && (
                 <div className={`mt-4 p-3 rounded-lg flex items-center justify-center text-sm ${status === 'success'
-                    ? 'bg-green-500 bg-opacity-20 border border-green-300'
-                    : 'bg-red-500 bg-opacity-20 border border-red-300'
+                    ? (theme === 'dark' ? 'bg-green-500 bg-opacity-20 border border-green-300' : 'bg-green-500 bg-opacity-20 border border-green-300')
+                    : (theme === 'dark' ? 'bg-red-500 bg-opacity-20 border border-red-300' : 'bg-red-500 bg-opacity-20 border border-red-300')
                     }`}>
                     {status === 'success' ? (
                         <CheckCircle className="w-4 h-4 mr-2" />
@@ -149,9 +158,11 @@ export default function NewsletterForm({ className = '', compact = false, theme 
                 </div>
             )}
 
-            <p className="text-xs text-purple-100 mt-3">
-                Unirse a +5,000 suscriptores. Sin spam, solo contenido de calidad.
-            </p>
+            {theme !== 'dark' && (
+                <p className="text-xs text-purple-100 mt-3">
+                    Unirse a +5,000 suscriptores. Sin spam, solo contenido de calidad.
+                </p>
+            )}
         </div>
     );
 }

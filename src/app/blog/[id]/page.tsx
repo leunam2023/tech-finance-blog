@@ -8,6 +8,7 @@ import { Calendar, Clock, User, Tag, Search, ArrowLeft, Heart } from 'lucide-rea
 import { getMixedNews } from '@/lib/newsApi';
 import { BlogPost } from '@/types/blog';
 import ShareButtons from '@/components/ShareButtons';
+import NewsletterForm from '@/components/NewsletterForm';
 
 interface BlogPostPageProps {
     params: Promise<{
@@ -240,7 +241,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                 url={`https://tech-finance-blog.vercel.app/blog/${post.id}`}
                             />
 
-                            {/* Call to action para newsletter */}
+                            {/* Call to action para newsletter con funcionalidad completa */}
                             <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-8 text-center mb-8">
                                 <Heart className="w-12 h-12 mx-auto mb-4 text-yellow-300" />
                                 <h3 className="text-2xl font-bold mb-3">
@@ -249,16 +250,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                                 <p className="mb-6 text-lg opacity-90">
                                     Mantente al día con las últimas noticias de tecnología y finanzas
                                 </p>
-                                <div className="flex flex-col sm:flex-row max-w-lg mx-auto gap-4">
-                                    <input
-                                        type="email"
-                                        placeholder="Tu email"
-                                        className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                                    />
-                                    <button className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-8 py-3 rounded-lg transition-colors duration-200">
-                                        Suscribirse
-                                    </button>
-                                </div>
+                                <NewsletterForm className="max-w-lg mx-auto" theme="dark" />
                                 <p className="text-sm opacity-75 mt-3">
                                     Únete a más de 10,000 lectores que reciben contenido exclusivo
                                 </p>
